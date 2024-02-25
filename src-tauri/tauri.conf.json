@@ -18,6 +18,10 @@
       },
       "dialog": {
         "all": true
+      },
+      "fs": {
+        "all": true,
+        "scope": ["$APPDATA/images/*"]
       }
     },
     "windows": [
@@ -35,7 +39,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "app.doublejstudio.magic",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
