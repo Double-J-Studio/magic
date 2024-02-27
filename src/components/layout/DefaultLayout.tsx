@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import { Outlet } from "react-router-dom";
 import {
   ResizableHandle,
@@ -14,10 +13,7 @@ const DefaultLayout = () => {
     >
       <ResizablePanel defaultSize={30} maxSize={30} className="max-w-[260px]">
         <div className="flex h-full items-center justify-center p-6">
-          <span className="font-semibold">Sidebar</span>
-        </div>
-        <div>
-          <div>123</div>
+          <span className="font-semibold"></span>
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle className="border border-gray-300" />

@@ -32,6 +32,12 @@ const ChatSelect = () => {
           <SelectItem value="gpt-4-turbo-preview" className="cursor-pointer">
             GPT-4
           </SelectItem>
+          <SelectItem value="bing" className="cursor-pointer">
+            Browse with Bing
+          </SelectItem>
+          <SelectItem value="dall-e-3" className="cursor-pointer">
+            DALL·E 3
+          </SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>
