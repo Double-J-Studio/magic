@@ -1,6 +1,6 @@
-import Database from 'tauri-plugin-sql-api';
+import Database from "tauri-plugin-sql-api";
 
-const database = await Database.load('sqlite::magic.db');
+const database = await Database.load("sqlite::magic.db");
 
 export const db = {
   conversation: {
@@ -23,20 +23,20 @@ interface Conversation {
 }
 
 async function insertConversation(name: string) {
-  await database.execute('INSERT INTO conversations (name) VALUES ($1)', [
+  await database.execute("INSERT INTO conversations (name) VALUES ($1)", [
     name,
   ]);
 }
 
-async function getConversations(): Promise<Conversation[]> {
+export async function getConversations(): Promise<Conversation[]> {
   return await database.select(
-    'SELECT * FROM conversations ORDER BY createdAt ASC'
+    "SELECT * FROM conversations ORDER BY createdAt ASC"
   );
 }
 
 async function getConversationById(id: number) {
   const result = await database.select(
-    'SELECT * FROM conversations WHERE id = $1',
+    "SELECT * FROM conversations WHERE id = $1",
     [id]
   );
   if (Array.isArray(result) && result.length < 1) {
@@ -48,7 +48,7 @@ async function getConversationById(id: number) {
 
 async function getMessages(conversationId: number): Promise<Message[]> {
   return await database.select(
-    'SELECT * FROM messages WHERE conversationId = $1 ORDER BY createdAt ASC',
+    "SELECT * FROM messages WHERE conversationId = $1 ORDER BY createdAt ASC",
     [conversationId]
   );
 }
@@ -63,17 +63,17 @@ interface Message {
   createdAt: string;
 }
 
-type MessageInput = Omit<Message, 'id' | 'createdAt'>;
+type MessageInput = Omit<Message, "id" | "createdAt">;
 
 async function insertMessage({
   conversationId,
   model,
   role,
   content,
-  imageUrls = '',
+  imageUrls = "",
 }: MessageInput) {
   await database.execute(
-    'INSERT INTO messages (conversationId, model, role, content, imageUrls) VALUES ($1, $2, $3, $4, $5)',
+    "INSERT INTO messages (conversationId, model, role, content, imageUrls) VALUES ($1, $2, $3, $4, $5)",
     [conversationId, model, role, content, imageUrls]
   );
 }

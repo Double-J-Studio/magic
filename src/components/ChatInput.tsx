@@ -11,10 +11,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { createChatCompletionStream } from "@/utils/openai";
+import { createChatCompletionStream, createImage } from "@/utils/openai";
 import { kv } from "@/utils/tauri/kv";
 import useMessageStore from "@/state/useMessageStore";
 import useSelectedModelStore from "@/state/useSelectedModelStore";
+import { readImage } from "@/utils/tauri/file";
+import { db } from "@/utils/tauri/db";
 
 const ChatInput = () => {
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ const ChatInput = () => {
     }
   );
   const { ref, ...registerMessageRes } = register("message");
-  const { messages, setMessage, setAnswer } = useMessageStore();
+  const { messages, setMessage, setAnswer, setImageAnswer } = useMessageStore();
   const { model } = useSelectedModelStore();
 
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -69,26 +71,65 @@ const ChatInput = () => {
 
     setMessage({ role: "user", content: data.message });
     setMessage({ role: "assistant", content: "" });
+    // db.conversation.message.insert({
+    //   model: model,
+    //   imageUrls: "",
+    //   content: data.message,
+    //   role: "user",
+    //   conversationId: 1,
+    // });
 
-    createChatCompletionStream({
-      apiKey: apiKey,
-      model: model,
-      messages: [
-        { role: "system", content: "You are a helpful AI. 답변은 한글로 줘." },
-        ...messages,
-        {
-          role: "user",
-          content: data.message,
+    if (model === "dall-e-3") {
+      createImage({
+        apiKey: apiKey,
+        model: model,
+        prompt: data.message,
+        size: "1024x1024",
+      }).then((res: any) => {
+        readImage(res).then((data) => {
+          const blob = new Blob([data]);
+          setImageAnswer(URL.createObjectURL(blob));
+          // db.conversation.message.insert({
+          //   model: model,
+          //   imageUrls: URL.createObjectURL(blob),
+          //   content: "",
+          //   role: "",
+          //   conversationId: 1,
+          // });
+        });
+      });
+    } else {
+      createChatCompletionStream({
+        apiKey: apiKey,
+        model: model,
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful AI. 답변은 한글로 줘.",
+          },
+          ...messages,
+          {
+            role: "user",
+            content: data.message,
+          },
+        ],
+        onMessage: (message) => {
+          setAnswer(message);
         },
-      ],
-      onMessage: (message) => {
-        setAnswer(message);
-      },
-      onError: (error) => {
-        console.error("error", error);
-        alert(error);
-      },
-    });
+        onError: (error) => {
+          console.error("error", error);
+          alert(error);
+        },
+      }).then((_) => {
+        // db.conversation.message.insert({
+        //   model: model,
+        //   imageUrls: "",
+        //   content: messages[messages.length - 1].content,
+        //   role: "assistant",
+        //   conversationId: 1,
+        // });
+      });
+    }
 
     reset({ message: "" });
   };

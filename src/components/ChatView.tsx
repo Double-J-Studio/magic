@@ -4,6 +4,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { Button } from "@/components/ui/button";
+import { readImage } from "@/utils/tauri/file";
 import useMessageStore from "@/state/useMessageStore";
 
 const ChatView = () => {
@@ -36,12 +37,20 @@ const ChatView = () => {
                     ? capitalizeFirstLetter(message.role)
                     : "ChatGPT"}
                 </div>
-                <Markdown
-                  className="whitespace-pre-wrap"
-                  remarkPlugins={[remarkGfm]}
-                >
-                  {message.content}
-                </Markdown>
+                {message.type && message.type === "image" ? (
+                  <img
+                    src={message.imageUrls}
+                    alt="dall-e3_image"
+                    className="rounded-md"
+                  />
+                ) : (
+                  <Markdown
+                    className="whitespace-pre-wrap"
+                    remarkPlugins={[remarkGfm]}
+                  >
+                    {message.content}
+                  </Markdown>
+                )}
 
                 <div className="flex justify-start gap-3 mt-1 h-6"></div>
               </div>
