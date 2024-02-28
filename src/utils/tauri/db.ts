@@ -1,6 +1,6 @@
 import Database from "tauri-plugin-sql-api";
 
-const database = await Database.load("sqlite::magic.db");
+const database = await Database.load("sqlite:magic.db");
 
 export const db = {
   conversation: {

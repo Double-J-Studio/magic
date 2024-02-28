@@ -4,17 +4,24 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { Button } from "@/components/ui/button";
-import { readImage } from "@/utils/tauri/file";
+import BingMessageComponent from "@/components/BingMessageComponent";
+import { capitalizeFirstLetter } from "@/lib/utils";
 import useMessageStore from "@/state/useMessageStore";
+import useSelectedModelStore from "@/state/useSelectedModelStore";
 
 const ChatView = () => {
   const scrollToBottom = useScrollToBottom();
   const [sticky] = useSticky();
+
   const { messages } = useMessageStore();
 
-  function capitalizeFirstLetter(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
+  const changeModelName = (model: string) => {
+    if (model.includes("gpt") || model.includes("dall")) {
+      return "ChatGPT";
+    }
+
+    return capitalizeFirstLetter(model);
+  };
 
   return (
     <>
@@ -35,14 +42,17 @@ const ChatView = () => {
                 <div className="leading-6">
                   {message.role === "user"
                     ? capitalizeFirstLetter(message.role)
-                    : "ChatGPT"}
+                    : changeModelName(message.model)}
                 </div>
-                {message.type && message.type === "image" ? (
+                {message.type && message.type === "image" && (
                   <img
                     src={message.imageUrls}
                     alt="dall-e3_image"
                     className="rounded-md"
                   />
+                )}
+                {message.model === "bing" ? (
+                  <BingMessageComponent message={message.content} />
                 ) : (
                   <Markdown
                     className="whitespace-pre-wrap"
@@ -52,7 +62,7 @@ const ChatView = () => {
                   </Markdown>
                 )}
 
-                <div className="flex justify-start gap-3 mt-1 h-6"></div>
+                <div className="flex justify-start gap-3 mt-1 h-3"></div>
               </div>
             </div>
           );
