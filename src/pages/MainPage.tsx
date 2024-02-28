@@ -1,9 +1,9 @@
+import { useEffect } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 
 import ChatSelect from "@/components/ChatSelect";
 import ChatView from "@/components/ChatView";
 import ChatInput from "@/components/ChatInput";
-import { useEffect } from "react";
 import { db } from "@/utils/tauri/db";
 
 const MainPage = () => {
@@ -22,6 +22,7 @@ const MainPage = () => {
       <ScrollToBottom
         className="relative flex-1 overflow-y-auto h-[90%] pb-9"
         followButtonClassName="hidden"
+        initialScrollBehavior="auto"
       >
         <ChatView />
       </ScrollToBottom>

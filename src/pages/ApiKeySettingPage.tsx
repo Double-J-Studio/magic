@@ -24,7 +24,24 @@ const ApiKeySettingPage = () => {
       if (!apiKeys) {
         return;
       }
-      setApiKeys(apiKeys);
+
+      if (apiKeys) {
+        const services = ["openai", "bing", "groq"];
+        if (apiKeys.length < 3) {
+          const existedServices = apiKeys.map((apiKey) => apiKey.service);
+          const filteredServices = services.filter(
+            (service) => !existedServices.includes(service)
+          );
+
+          if (filteredServices.length > 0) {
+            filteredServices.forEach((service) => {
+              apiKeys.push({ key: "", service: service });
+            });
+          }
+        }
+
+        setApiKeys(apiKeys);
+      }
     });
   }, []);
 
@@ -44,6 +61,9 @@ const ApiKeySettingPage = () => {
         break;
       case "bing":
         clone[1].key = e.currentTarget.value;
+        break;
+      case "groq":
+        clone[2].key = e.currentTarget.value;
         break;
     }
 
@@ -103,6 +123,30 @@ const ApiKeySettingPage = () => {
                 size="sm"
                 className="h-10"
                 onClick={() => handleSaveBtnClick("bing")}
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            <h3>Groq</h3>
+            <div className="flex gap-2">
+              <Label htmlFor="apiKey" className="flex items-center">
+                API Key
+              </Label>
+              <Input
+                id="apiKey"
+                placeholder="Enter your API key"
+                className="w-[85%]"
+                value={apiKeys[2].key}
+                onChange={(e) => handleApiKeyChange(e, "groq")}
+              />
+              <Button
+                type="button"
+                size="sm"
+                className="h-10"
+                onClick={() => handleSaveBtnClick("groq")}
               >
                 Save
               </Button>

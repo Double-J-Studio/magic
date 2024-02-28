@@ -12,9 +12,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { createChatCompletionStream, createImage } from "@/utils/openai";
+import { createGroqChatCompletionStream } from "@/utils/groq";
+import { search } from "@/utils/bing";
 import { kv } from "@/utils/tauri/kv";
 import { readImage } from "@/utils/tauri/file";
-import { search } from "@/utils/bing";
 import { db } from "@/utils/tauri/db";
 import useApiKeyStore, { ApiKey } from "@/state/useApiKeyStore";
 import useMessageStore from "@/state/useMessageStore";
@@ -38,7 +39,25 @@ const ChatInput = () => {
 
   useEffect(() => {
     kv.get<ApiKey[]>("api_keys").then((apiKeys) => {
+      if (!apiKeys) {
+        return;
+      }
+
       if (apiKeys) {
+        const services = ["openai", "bing", "groq"];
+        if (apiKeys.length < 3) {
+          const existedServices = apiKeys.map((apiKey) => apiKey.service);
+          const filteredServices = services.filter(
+            (service) => !existedServices.includes(service)
+          );
+
+          if (filteredServices.length > 0) {
+            filteredServices.forEach((service) => {
+              apiKeys.push({ key: "", service: service });
+            });
+          }
+        }
+
         setApiKeys(apiKeys);
       }
     });
@@ -93,6 +112,33 @@ const ChatInput = () => {
     //   role: "user",
     //   conversationId: 1,
     // });
+
+    if (model.includes("llama2") || model.includes("mixtral")) {
+      createGroqChatCompletionStream({
+        apiKey: apiKeys[2].key,
+        model: model,
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful AI. 답변은 한글로 줘.",
+          },
+          ...messages.map((message) => {
+            return { role: message.role, content: message.content };
+          }),
+          {
+            role: "user",
+            content: data.message,
+          },
+        ],
+        onMessage: (message) => {
+          setAnswer({ message: message, model: model });
+        },
+        onError: (error) => {
+          console.error("error", error);
+          alert(error);
+        },
+      });
+    }
 
     if (model === "bing") {
       search({

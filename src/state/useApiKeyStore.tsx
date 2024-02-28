@@ -20,6 +20,10 @@ const useApiKeyStore = create<UseApiKeyStoreProps>()((set) => ({
       service: "bing",
       key: "",
     },
+    {
+      service: "groq",
+      key: "",
+    },
   ],
   setApiKeys: (apiKeys) => {
     set((state) => ({ ...state, apiKeys: apiKeys }));
