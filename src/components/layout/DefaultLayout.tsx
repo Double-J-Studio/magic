@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/resizable";
 
 const DefaultLayout = () => {
+  const navigate = useNavigate();
   return (
     <ResizablePanelGroup
       direction="horizontal"
@@ -14,6 +15,9 @@ const DefaultLayout = () => {
       <ResizablePanel defaultSize={30} maxSize={30} className="max-w-[260px]">
         <div className="flex h-full items-center justify-center p-6">
           <span className="font-semibold"></span>
+          <button type="button" onClick={() => navigate("/api-key-setting")}>
+            키등록
+          </button>
         </div>
       </ResizablePanel>
       <ResizableHandle withHandle className="border border-gray-300" />

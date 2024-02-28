@@ -1,4 +1,4 @@
-import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import TextareaAutosize from "react-textarea-autosize";
@@ -13,10 +13,12 @@ import {
 } from "@/components/ui/tooltip";
 import { createChatCompletionStream, createImage } from "@/utils/openai";
 import { kv } from "@/utils/tauri/kv";
+import { readImage } from "@/utils/tauri/file";
+import { search } from "@/utils/bing";
+import { db } from "@/utils/tauri/db";
+import useApiKeyStore, { ApiKey } from "@/state/useApiKeyStore";
 import useMessageStore from "@/state/useMessageStore";
 import useSelectedModelStore from "@/state/useSelectedModelStore";
-import { readImage } from "@/utils/tauri/file";
-import { db } from "@/utils/tauri/db";
 
 const ChatInput = () => {
   const navigate = useNavigate();
@@ -30,15 +32,14 @@ const ChatInput = () => {
   const { ref, ...registerMessageRes } = register("message");
   const { messages, setMessage, setAnswer, setImageAnswer } = useMessageStore();
   const { model } = useSelectedModelStore();
-
-  const [apiKey, setApiKey] = useState<string | null>(null);
+  const { apiKeys, setApiKeys } = useApiKeyStore();
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    kv.get<string>("api_key").then((apiKey) => {
-      if (apiKey) {
-        setApiKey(apiKey);
+    kv.get<ApiKey[]>("api_keys").then((apiKeys) => {
+      if (apiKeys) {
+        setApiKeys(apiKeys);
       }
     });
   }, []);
@@ -63,14 +64,28 @@ const ChatInput = () => {
   };
 
   const handleFormSubmit = (data: { message: string }) => {
-    if (!apiKey) {
-      alert("API key is not set. Please set the API key first.");
-      navigate("/api-key-setting");
-      return;
+    const openaiApiKey = apiKeys?.filter(
+      (apiKey) => apiKey.service === "openai"
+    )[0].key;
+    const bingApiKey = apiKeys?.filter((apiKey) => apiKey.service === "bing")[0]
+      .key;
+
+    if (model.includes("gpt") || model.includes("dall")) {
+      if (openaiApiKey?.length < 1) {
+        alert("OpenAI API key is not set. Please set the API key first.");
+        navigate("/api-key-setting");
+        return;
+      }
+    } else if (model.includes("bing")) {
+      if (bingApiKey?.length < 1) {
+        alert("Bing API key is not set. Please set the API key first.");
+        navigate("/api-key-setting");
+        return;
+      }
     }
 
     setMessage({ role: "user", content: data.message });
-    setMessage({ role: "assistant", content: "" });
+    setMessage({ role: "assistant", content: "", model: model });
     // db.conversation.message.insert({
     //   model: model,
     //   imageUrls: "",
@@ -79,9 +94,25 @@ const ChatInput = () => {
     //   conversationId: 1,
     // });
 
+    if (model === "bing") {
+      search({
+        query: data.message,
+        apiKey: apiKeys[1].key,
+      }).then((res) => {
+        const keysToExtract = ["id", "name", "snippet", "url", "datePublished"];
+        const extractedList = res.webPages.value.map((page) => {
+          return Object.fromEntries(
+            Object.entries(page).filter(([key]) => keysToExtract.includes(key))
+          );
+        });
+
+        setAnswer({ message: JSON.stringify(extractedList), model: model });
+      });
+    }
+
     if (model === "dall-e-3") {
       createImage({
-        apiKey: apiKey,
+        apiKey: apiKeys[0].key,
         model: model,
         prompt: data.message,
         size: "1024x1024",
@@ -98,23 +129,27 @@ const ChatInput = () => {
           // });
         });
       });
-    } else {
+    }
+
+    if (model.includes("gpt")) {
       createChatCompletionStream({
-        apiKey: apiKey,
+        apiKey: apiKeys[0].key,
         model: model,
         messages: [
           {
             role: "system",
             content: "You are a helpful AI. 답변은 한글로 줘.",
           },
-          ...messages,
+          ...messages.map((message) => {
+            return { role: message.role, content: message.content };
+          }),
           {
             role: "user",
             content: data.message,
           },
         ],
         onMessage: (message) => {
-          setAnswer(message);
+          setAnswer({ message: message, model: model });
         },
         onError: (error) => {
           console.error("error", error);

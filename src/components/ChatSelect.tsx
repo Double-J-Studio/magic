@@ -18,7 +18,7 @@ const ChatSelect = () => {
 
   return (
     <Select onValueChange={handleValueChange} defaultValue={model}>
-      <SelectTrigger className="w-[130px] border-0 text-lg font-bold hover:bg-accent hover:text-accent-foreground focus-visible:ring-transparent">
+      <SelectTrigger className="w-[130px] border-0 text-lg font-bold hover:bg-accent hover:text-accent-foreground focus-visible:ring-transparent focus:ring-transparent">
         <SelectValue
           placeholder={model === "gpt-3.5-turbo" ? "GPT-3.5" : "GPT-4.0"}
         />
@@ -33,7 +33,7 @@ const ChatSelect = () => {
             GPT-4
           </SelectItem>
           <SelectItem value="bing" className="cursor-pointer">
-            Browse with Bing
+            Bing
           </SelectItem>
           <SelectItem value="dall-e-3" className="cursor-pointer">
             DALL·E 3
