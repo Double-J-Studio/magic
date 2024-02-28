@@ -6,8 +6,7 @@ import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import BingMessageComponent from "@/components/BingMessageComponent";
 import { capitalizeFirstLetter } from "@/lib/utils";
-import useMessageStore from "@/state/useMessageStore";
-import useSelectedModelStore from "@/state/useSelectedModelStore";
+import useMessageStore, { Message } from "@/state/useMessageStore";
 
 const ChatView = () => {
   const scrollToBottom = useScrollToBottom();
@@ -16,8 +15,16 @@ const ChatView = () => {
   const { messages } = useMessageStore();
 
   const changeModelName = (model: string) => {
-    if (model.includes("gpt") || model.includes("dall")) {
+    if (model?.includes("gpt")) {
       return "ChatGPT";
+    }
+
+    if (model?.includes("dall")) {
+      return "DALL·E 3";
+    }
+
+    if (model?.includes("llama") || model?.includes("mixtral")) {
+      return capitalizeFirstLetter(model?.split("-")[0]);
     }
 
     return capitalizeFirstLetter(model);
@@ -25,11 +32,11 @@ const ChatView = () => {
 
   return (
     <>
-      {messages.filter((message: any) => message.role === "assistant").length >
-        0 &&
-        messages.map((message: any, index: number) => {
+      {messages.filter((message: Message) => message.role === "assistant")
+        .length > 0 &&
+        messages.map((message: Message, i: number) => {
           return (
-            <div key={`message_${index}`} className="flex gap-2 px-4 py-2">
+            <div key={`message_${i}`} className="flex gap-2 px-4 py-2">
               <div
                 className={`flex justify-center w-6 h-6 ${
                   message.role === "user" ? "bg-slate-200" : "bg-green-500"
@@ -39,10 +46,10 @@ const ChatView = () => {
               </div>
 
               <div className="flex flex-col gap-1 w-[calc(100%-32px)]">
-                <div className="leading-6">
+                <div className="leading-6 text-gray-700 font-semibold select-none">
                   {message.role === "user"
                     ? capitalizeFirstLetter(message.role)
-                    : changeModelName(message.model)}
+                    : changeModelName(message.model as string)}
                 </div>
                 {message.type && message.type === "image" && (
                   <img
@@ -62,7 +69,7 @@ const ChatView = () => {
                   </Markdown>
                 )}
 
-                <div className="flex justify-start gap-3 mt-1 h-3"></div>
+                <div className="flex justify-start gap-3 mt-1 h-1"></div>
               </div>
             </div>
           );

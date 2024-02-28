@@ -5,6 +5,7 @@ export interface Message {
   model?: string;
   role: string;
   content: string;
+  imageUrls?: string;
 }
 
 interface UseMessageStoreProps {
