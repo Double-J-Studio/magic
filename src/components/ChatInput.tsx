@@ -31,7 +31,8 @@ const ChatInput = () => {
     }
   );
   const { ref, ...registerMessageRes } = register("message");
-  const { messages, setMessage, setAnswer, setImageAnswer } = useMessageStore();
+  const { messages, setMessage, setAnswer, setImageAnswer, setImageLoading } =
+    useMessageStore();
   const { model } = useSelectedModelStore();
   const { apiKeys, setApiKeys } = useApiKeyStore();
 
@@ -157,6 +158,9 @@ const ChatInput = () => {
     }
 
     if (model === "dall-e-3") {
+      setImageLoading(true);
+      console.log("messages : ", messages);
+
       createImage({
         apiKey: apiKeys[0].key,
         model: model,
@@ -166,6 +170,7 @@ const ChatInput = () => {
         readImage(res).then((data) => {
           const blob = new Blob([data]);
           setImageAnswer(URL.createObjectURL(blob));
+          setImageLoading(false);
           // db.conversation.message.insert({
           //   model: model,
           //   imageUrls: URL.createObjectURL(blob),

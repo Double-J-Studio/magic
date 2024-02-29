@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 
 import { Button } from "@/components/ui/button";
 import BingMessageComponent from "@/components/BingMessageComponent";
+import SkeletonCard from "@/components/SkeletonCard";
 import { capitalizeFirstLetter } from "@/lib/utils";
 import useMessageStore, { Message } from "@/state/useMessageStore";
 
@@ -51,13 +52,18 @@ const ChatView = () => {
                     ? capitalizeFirstLetter(message.role)
                     : changeModelName(message.model as string)}
                 </div>
-                {message.type && message.type === "image" && (
-                  <img
-                    src={message.imageUrls}
-                    alt="dall-e3_image"
-                    className="rounded-md"
-                  />
-                )}
+                {message.type &&
+                  message.type === "image" &&
+                  (!message.isLoading ? (
+                    <img
+                      src={message.imageUrls}
+                      alt="dall-e3_image"
+                      className="rounded-md"
+                    />
+                  ) : (
+                    <SkeletonCard />
+                  ))}
+
                 {message.model === "bing" ? (
                   <BingMessageComponent message={message.content} />
                 ) : (
