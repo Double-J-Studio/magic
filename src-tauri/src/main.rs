@@ -7,10 +7,15 @@ use std::io::copy;
 use reqwest;
 use chrono::Utc;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn toggle_window(window: tauri::Window) {
+  if window.is_focused().expect("error while getting window state") {
+    window.hide().expect("error while hiding window");
+  } else {
+    window.show().expect("error while showing window");
+    window.set_focus().expect("error while focus window");
+  }
+
 }
 
 #[tauri::command]
@@ -97,7 +102,7 @@ fn main() {
     ];
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet,write_image])
+        .invoke_handler(tauri::generate_handler![write_image,toggle_window])
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_sql::Builder::default().add_migrations("sqlite::magic.db", migrations).build())
         .run(tauri::generate_context!())
