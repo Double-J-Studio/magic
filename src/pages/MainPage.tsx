@@ -5,12 +5,18 @@ import ChatSelect from "@/components/ChatSelect";
 import ChatView from "@/components/ChatView";
 import ChatInput from "@/components/ChatInput";
 import { db } from "@/utils/tauri/db";
+import useConversationStore from "@/state/useConversationStore";
 
 const MainPage = () => {
+  const { setConversations } = useConversationStore();
+
   useEffect(() => {
     db.conversation
       .list()
-      .then((l) => console.log("l", l))
+      .then((res) => {
+        console.log("res", res);
+        setConversations(res);
+      })
       .catch((err) => console.error("err", err));
   }, []);
 

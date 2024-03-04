@@ -14,12 +14,13 @@ import {
 import { createChatCompletionStream, createImage } from "@/utils/openai";
 import { createGroqChatCompletionStream } from "@/utils/groq";
 import { search } from "@/utils/bing";
-import { kv } from "@/utils/tauri/kv";
 import { readImage } from "@/utils/tauri/file";
 import { db } from "@/utils/tauri/db";
-import useApiKeyStore, { ApiKey } from "@/state/useApiKeyStore";
+import { checkApiKeys } from "@/utils/api-key-check";
+import useApiKeyStore from "@/state/useApiKeyStore";
 import useMessageStore from "@/state/useMessageStore";
 import useSelectedModelStore from "@/state/useSelectedModelStore";
+import useConversationStore from "@/state/useConversationStore";
 
 const ChatInput = () => {
   const navigate = useNavigate();
@@ -35,33 +36,12 @@ const ChatInput = () => {
     useMessageStore();
   const { model } = useSelectedModelStore();
   const { apiKeys, setApiKeys } = useApiKeyStore();
+  const { conversations } = useConversationStore();
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
-    kv.get<ApiKey[]>("api_keys").then((apiKeys) => {
-      if (!apiKeys) {
-        return;
-      }
-
-      if (apiKeys) {
-        const services = ["openai", "bing", "groq"];
-        if (apiKeys.length < 3) {
-          const existedServices = apiKeys.map((apiKey) => apiKey.service);
-          const filteredServices = services.filter(
-            (service) => !existedServices.includes(service)
-          );
-
-          if (filteredServices.length > 0) {
-            filteredServices.forEach((service) => {
-              apiKeys.push({ key: "", service: service });
-            });
-          }
-        }
-
-        setApiKeys(apiKeys);
-      }
-    });
+    checkApiKeys(setApiKeys);
   }, []);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -104,15 +84,19 @@ const ChatInput = () => {
       }
     }
 
+    if (conversations.length < 1) {
+      db.conversation.insert(data.message.substring(0, 15));
+    }
+
     setMessage({ role: "user", content: data.message });
     setMessage({ role: "assistant", content: "", model: model });
-    // db.conversation.message.insert({
-    //   model: model,
-    //   imageUrls: "",
-    //   content: data.message,
-    //   role: "user",
-    //   conversationId: 1,
-    // });
+    db.conversation.message.insert({
+      model: model,
+      imageUrls: "",
+      content: data.message,
+      role: "user",
+      conversationId: 1,
+    });
 
     if (model.includes("llama2") || model.includes("mixtral")) {
       createGroqChatCompletionStream({
@@ -159,8 +143,6 @@ const ChatInput = () => {
 
     if (model === "dall-e-3") {
       setImageLoading(true);
-      console.log("messages : ", messages);
-
       createImage({
         apiKey: apiKeys[0].key,
         model: model,
@@ -171,13 +153,13 @@ const ChatInput = () => {
           const blob = new Blob([data]);
           setImageAnswer(URL.createObjectURL(blob));
           setImageLoading(false);
-          // db.conversation.message.insert({
-          //   model: model,
-          //   imageUrls: URL.createObjectURL(blob),
-          //   content: "",
-          //   role: "",
-          //   conversationId: 1,
-          // });
+          db.conversation.message.insert({
+            model: model,
+            imageUrls: URL.createObjectURL(blob),
+            content: "",
+            role: "",
+            conversationId: 1,
+          });
         });
       });
     }
@@ -207,13 +189,13 @@ const ChatInput = () => {
           alert(error);
         },
       }).then((_) => {
-        // db.conversation.message.insert({
-        //   model: model,
-        //   imageUrls: "",
-        //   content: messages[messages.length - 1].content,
-        //   role: "assistant",
-        //   conversationId: 1,
-        // });
+        db.conversation.message.insert({
+          model: model,
+          imageUrls: "",
+          content: messages[messages.length - 1].content,
+          role: "assistant",
+          conversationId: 1,
+        });
       });
     }
 
