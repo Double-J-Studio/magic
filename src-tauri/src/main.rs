@@ -104,7 +104,7 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![write_image,toggle_window])
         .plugin(tauri_plugin_store::Builder::default().build())
-        .plugin(tauri_plugin_sql::Builder::default().add_migrations("sqlite::magic.db", migrations).build())
+        .plugin(tauri_plugin_sql::Builder::default().add_migrations("sqlite:magic.db", migrations).build())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -23,9 +23,10 @@ interface Conversation {
 }
 
 async function insertConversation(name: string) {
-  await database.execute("INSERT INTO conversations (name) VALUES ($1)", [
-    name,
-  ]);
+  return await database.execute(
+    "INSERT INTO conversations (name) VALUES ($1)",
+    [name]
+  );
 }
 
 export async function getConversations(): Promise<Conversation[]> {
