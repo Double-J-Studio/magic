@@ -1,13 +1,18 @@
-import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import { ArrowDownIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 import Markdown from "react-markdown";
+import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import remarkGfm from "remark-gfm";
 
-import { Button } from "@/components/ui/button";
+
+import { capitalizeFirstLetter } from "@/lib/utils";
+
+
 import BingMessageComponent from "@/components/BingMessageComponent";
 import SkeletonCard from "@/components/SkeletonCard";
-import { capitalizeFirstLetter } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
 import useMessageStore, { Message } from "@/state/useMessageStore";
+
 
 const ChatView = () => {
   const scrollToBottom = useScrollToBottom();

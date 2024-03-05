@@ -1,5 +1,6 @@
-import Router from '@/routes';
-import useKeyBinding from './hooks/tauri/useKeyBinding';
+import useKeyBinding from "@/hooks/tauri/useKeyBinding";
+
+import Router from "@/routes";
 
 function App() {
   useKeyBinding();

@@ -7,7 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import useSelectedModelStore from "@/state/useSelectedModelStore";
+
 
 const ChatSelect = () => {
   const { model, setModel } = useSelectedModelStore();

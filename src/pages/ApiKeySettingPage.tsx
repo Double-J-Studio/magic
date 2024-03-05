@@ -1,17 +1,20 @@
 import { useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
 
+import { checkApiKeys } from "@/utils/api-key-check";
+
+import ApiKeyInput from "@/components/ApiKeyInput";
+import { Button } from "@/components/ui/button";
 import {
-  CardTitle,
+  Card,
+  CardContent,
   CardDescription,
   CardHeader,
-  CardContent,
-  Card,
+  CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import ApiKeyInput from "@/components/ApiKeyInput";
+
 import useApiKeyStore from "@/state/useApiKeyStore";
-import { checkApiKeys } from "@/utils/api-key-check";
 
 const ApiKeySettingPage = () => {
   const navigate = useNavigate();
@@ -23,6 +26,7 @@ const ApiKeySettingPage = () => {
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

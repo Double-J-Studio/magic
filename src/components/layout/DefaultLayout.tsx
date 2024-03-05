@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import Sidebar from "@/components/Sidebar";
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
 const DefaultLayout = () => {
   return (

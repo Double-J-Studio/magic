@@ -1,15 +1,7 @@
 {
-  "parser": "@typescript-eslint/parser",
-  "extends": [
-    "react-app",
-    "eslint:recommended",
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-    "eslint-config-prettier"
-  ],
+  "extends": ["react-app"],
   "plugins": ["import"],
   "rules": {
-    "import/extensions": ["error", "ignorePackages"],
     "no-restricted-imports": [
       "error",
       {
@@ -23,17 +15,9 @@
         ]
       }
     ],
-    "sort-imports": [
-      "error",
-      {
-        "ignoreCase": true,
-        "ignoreDeclarationSort": true,
-        "ignoreMemberSort": false,
-        "allowSeparatedGroups": true
-      }
-    ],
     "import/order": [
       "error",
+
       {
         "groups": [
           "builtin",
@@ -52,23 +36,22 @@
             "position": "before"
           },
           {
-            "pattern": "@tanstack/**",
-            "group": "builtin",
-            "position": "after"
-          },
-          {
-            "pattern": "@/hooks/**",
-            "group": "internal",
-            "position": "after"
-          },
-          {
-            "pattern": "@/pages/**",
+            "pattern": "@/{hooks,utils,lib}/**",
             "group": "internal",
             "position": "before"
           },
           {
+            "pattern": "@/pages/**",
+            "group": "internal"
+          },
+          {
             "pattern": "@/components/**",
             "group": "internal"
+          },
+          {
+            "pattern": "@/state/**",
+            "group": "internal",
+            "position": "after"
           },
           {
             "pattern": "**/*.css",
@@ -76,17 +59,13 @@
             "position": "after"
           }
         ],
-        "pathGroupsExcludedImportTypes": [],
+        "pathGroupsExcludedImportTypes": ["react"],
         "newlines-between": "always",
         "alphabetize": {
-          "order": "asc",
+          // "order": "asc",
           "caseInsensitive": true
         }
       }
-    ],
-    "no-else-return": "error",
-    "no-console": "warn",
-    "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/ban-ts-comment": "off"
+    ]
   }
 }

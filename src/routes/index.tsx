@@ -1,9 +1,10 @@
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
-import ApiKeySettingPage from "@/pages/ApiKeySettingPage";
-import PageNotFound from "@/pages/PageNotFound";
-import MainPage from "@/pages/MainPage";
 import DefaultLayout from "@/components/layout/DefaultLayout";
+import ApiKeySettingPage from "@/pages/ApiKeySettingPage";
+import MainPage from "@/pages/MainPage";
+import PageNotFound from "@/pages/PageNotFound";
+
 
 const Router = () => {
   return (
