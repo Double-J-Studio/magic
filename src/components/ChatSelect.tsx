@@ -10,7 +10,6 @@ import {
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 
-
 const ChatSelect = () => {
   const { model, setModel } = useSelectedModelStore();
 

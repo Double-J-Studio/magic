@@ -2,20 +2,14 @@ import { ChangeEvent, useState } from "react";
 
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/20/solid";
 
-
-
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { kv } from "@/utils/tauri/kv";
-
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import useApiKeyStore from "@/state/useApiKeyStore";
-
-
-
 
 interface ApiKeyInputProps {
   title: string;

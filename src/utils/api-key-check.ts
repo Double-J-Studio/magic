@@ -2,9 +2,6 @@ import { kv } from "@/utils/tauri/kv";
 
 import { ApiKey } from "@/state/useApiKeyStore";
 
-
-
-
 export function checkApiKeys(setApiKeys: (apiKeys: ApiKey[]) => void) {
   kv.get<ApiKey[]>("api_keys").then((apiKeys) => {
     if (!apiKeys) {

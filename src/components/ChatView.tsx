@@ -3,16 +3,13 @@ import Markdown from "react-markdown";
 import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import remarkGfm from "remark-gfm";
 
-
 import { capitalizeFirstLetter } from "@/lib/utils";
-
 
 import BingMessageComponent from "@/components/BingMessageComponent";
 import SkeletonCard from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 
 import useMessageStore, { Message } from "@/state/useMessageStore";
-
 
 const ChatView = () => {
   const scrollToBottom = useScrollToBottom();

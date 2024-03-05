@@ -9,7 +9,7 @@ export async function search({
     `https://api.bing.microsoft.com/v7.0/search?q=${encodeURIComponent(query)}`,
     {
       headers: {
-        'Ocp-Apim-Subscription-Key': apiKey,
+        "Ocp-Apim-Subscription-Key": apiKey,
       },
     }
   );
