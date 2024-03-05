@@ -1,10 +1,13 @@
 import { useEffect } from "react";
+
 import ScrollToBottom from "react-scroll-to-bottom";
 
+import { db } from "@/utils/tauri/db";
+
+import ChatInput from "@/components/ChatInput";
 import ChatSelect from "@/components/ChatSelect";
 import ChatView from "@/components/ChatView";
-import ChatInput from "@/components/ChatInput";
-import { db } from "@/utils/tauri/db";
+
 import useConversationStore from "@/state/useConversationStore";
 
 const MainPage = () => {
@@ -18,6 +21,7 @@ const MainPage = () => {
         setConversations(res);
       })
       .catch((err) => console.error("err", err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

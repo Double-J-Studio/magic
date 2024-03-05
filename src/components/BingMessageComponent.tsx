@@ -24,7 +24,7 @@ const BingMessageComponent = ({ message }: BingMessageComponentProps) => {
               href={content.url}
               key={content.id}
               target="_blank"
-              className="flex flex-col gap-1 p-1"
+              className="flex flex-col gap-1 p-1" rel="noreferrer"
             >
               <div className="text-blue-800 font-bold truncate">
                 {i + 1}. {content.name}

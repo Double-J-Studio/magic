@@ -1,5 +1,6 @@
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 
 const ChatDropdown = () => {

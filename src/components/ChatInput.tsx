@@ -1,8 +1,16 @@
 import { KeyboardEvent, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import TextareaAutosize from "react-textarea-autosize";
+
 import { PaperAirplaneIcon } from "@heroicons/react/20/solid";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import TextareaAutosize from "react-textarea-autosize";
+
+import { checkApiKeys } from "@/utils/api-key-check";
+import { search } from "@/utils/bing";
+import { createGroqChatCompletionStream } from "@/utils/groq";
+import { createChatCompletionStream, createImage } from "@/utils/openai";
+import { db } from "@/utils/tauri/db";
+import { readImage } from "@/utils/tauri/file";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,16 +19,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { createChatCompletionStream, createImage } from "@/utils/openai";
-import { createGroqChatCompletionStream } from "@/utils/groq";
-import { search } from "@/utils/bing";
-import { readImage } from "@/utils/tauri/file";
-import { db } from "@/utils/tauri/db";
-import { checkApiKeys } from "@/utils/api-key-check";
-import useApiKeyStore from "@/state/useApiKeyStore";
-import useMessageStore from "@/state/useMessageStore";
+
 import useSelectedModelStore from "@/state/useSelectedModelStore";
+import useMessageStore from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
+import useApiKeyStore from "@/state/useApiKeyStore";
 
 const ChatInput = () => {
   const navigate = useNavigate();
@@ -42,6 +45,7 @@ const ChatInput = () => {
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {

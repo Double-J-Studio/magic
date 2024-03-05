@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
+import { useNavigate } from "react-router-dom";
 
-import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
+import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 
 const Sidebar = () => {
   const navigate = useNavigate();
