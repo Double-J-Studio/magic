@@ -1,7 +1,8 @@
 {
-  "extends": ["react-app"],
+  "extends": ["react-app", "prettier", "plugin:prettier/recommended"],
   "plugins": ["import"],
   "rules": {
+    "prettier/prettier": ["error", { "trailingComma": "es5" }],
     "no-restricted-imports": [
       "error",
       {

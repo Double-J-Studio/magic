@@ -1,4 +1,4 @@
-import { readBinaryFile } from '@tauri-apps/api/fs';
+import { readBinaryFile } from "@tauri-apps/api/fs";
 
 /**
  * @example readImage(

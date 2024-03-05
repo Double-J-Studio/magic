@@ -5,7 +5,6 @@ import ApiKeySettingPage from "@/pages/ApiKeySettingPage";
 import MainPage from "@/pages/MainPage";
 import PageNotFound from "@/pages/PageNotFound";
 
-
 const Router = () => {
   return (
     <Routes>
