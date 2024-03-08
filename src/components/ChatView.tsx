@@ -1,21 +1,26 @@
+import { useEffect } from "react";
+
 import { ArrowDownIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 import Markdown from "react-markdown";
 import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import remarkGfm from "remark-gfm";
 
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { db } from "@/utils/tauri/db";
 
 import BingMessageComponent from "@/components/BingMessageComponent";
 import SkeletonCard from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 
 import useMessageStore, { Message } from "@/state/useMessageStore";
+import useConversationStore from "@/state/useConversationStore";
 
 const ChatView = () => {
   const scrollToBottom = useScrollToBottom();
   const [sticky] = useSticky();
 
-  const { messages } = useMessageStore();
+  const { messages, setMessages } = useMessageStore();
+  const { selectedConversationId } = useConversationStore();
 
   const changeModelName = (model: string) => {
     if (model?.includes("gpt")) {
@@ -32,6 +37,16 @@ const ChatView = () => {
 
     return capitalizeFirstLetter(model);
   };
+
+  useEffect(() => {
+    if (selectedConversationId > 0) {
+      db.conversation.message.list(selectedConversationId).then((res) => {
+        setMessages(res);
+        console.log("res :::::::::::", res);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConversationId]);
 
   return (
     <>
@@ -54,8 +69,7 @@ const ChatView = () => {
                     ? capitalizeFirstLetter(message.role)
                     : changeModelName(message.model as string)}
                 </div>
-                {message.type &&
-                  message.type === "image" &&
+                {message.imageUrls &&
                   (!message.isLoading ? (
                     <img
                       src={message.imageUrls}
@@ -66,7 +80,7 @@ const ChatView = () => {
                     <SkeletonCard />
                   ))}
 
-                {message.model === "bing" ? (
+                {message.role !== "user" && message.model === "bing" ? (
                   <BingMessageComponent message={message.content} />
                 ) : (
                   <Markdown

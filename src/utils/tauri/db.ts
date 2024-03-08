@@ -57,7 +57,7 @@ async function getMessages(conversationId: number): Promise<Message[]> {
 interface Message {
   id: number;
   conversationId: number;
-  model: string;
+  model?: string;
   role: string;
   content: string;
   imageUrls?: string; // ,로 구분됨 예) /Users/jj/Library/Application Support/app.doublejstudio.magic/images/img-2024-02-25_15-04-37.png,/Users/jj/Library/Application Support/app.doublejstudio.magic/images/img-2024-02-25_15-04-38.png
@@ -68,11 +68,15 @@ type MessageInput = Omit<Message, "id" | "createdAt">;
 
 async function insertMessage({
   conversationId,
-  model,
+  model = "",
   role,
   content,
   imageUrls = "",
 }: MessageInput) {
+  if (role === "assistant" && !model) {
+    throw new Error("model is required");
+  }
+
   await database.execute(
     "INSERT INTO messages (conversationId, model, role, content, imageUrls) VALUES ($1, $2, $3, $4, $5)",
     [conversationId, model, role, content, imageUrls]
