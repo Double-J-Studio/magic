@@ -42,16 +42,6 @@ const ChatView = () => {
     return capitalizeFirstLetter(model);
   };
 
-  useEffect(() => {
-    if (selectedConversationId > 0) {
-      db.conversation.message.list(selectedConversationId).then((res) => {
-        setMessages(res);
-        console.log("res :::::::::::", res);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedConversationId]);
-
   return (
     <>
       {messages.filter((message: Message) => message.role === "assistant")
