@@ -31,7 +31,11 @@ const ChatView = () => {
       return "DALL·E 3";
     }
 
-    if (model?.includes("llama") || model?.includes("mixtral")) {
+    if (
+      model?.includes("llama") ||
+      model?.includes("mixtral") ||
+      model?.includes("gemini")
+    ) {
       return capitalizeFirstLetter(model?.split("-")[0]);
     }
 

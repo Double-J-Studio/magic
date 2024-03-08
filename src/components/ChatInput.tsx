@@ -4,6 +4,7 @@ import { PaperAirplaneIcon } from "@heroicons/react/20/solid";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import TextareaAutosize from "react-textarea-autosize";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 import { checkApiKeys } from "@/utils/api-key-check";
 import { search } from "@/utils/bing";
@@ -27,6 +28,7 @@ import useApiKeyStore from "@/state/useApiKeyStore";
 
 const ChatInput = () => {
   const navigate = useNavigate();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { register, handleSubmit, getValues, setValue, watch, reset } = useForm(
     {
       defaultValues: {
@@ -37,13 +39,24 @@ const ChatInput = () => {
   const { ref, ...registerMessageRes } = register("message", {
     required: "필수",
   });
+
   const { messages, setMessage, setAnswer, setImageAnswer, setImageLoading } =
     useMessageStore();
   const { model } = useSelectedModelStore();
   const { apiKeys, setApiKeys } = useApiKeyStore();
   const { conversations } = useConversationStore();
 
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const openaiApiKey = apiKeys?.filter(
+    (apiKey) => apiKey.service === "openai"
+  )[0].key;
+  const bingApiKey = apiKeys?.filter((apiKey) => apiKey.service === "bing")[0]
+    .key;
+  const groqApiKey = apiKeys?.filter((apiKey) => apiKey.service === "groq")[0]
+    .key;
+  const geminiApiKey = apiKeys?.filter(
+    (apiKey) => apiKey.service === "gemini"
+  )[0].key;
+  const geminiAI = new GoogleGenerativeAI(geminiApiKey);
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
@@ -70,14 +83,6 @@ const ChatInput = () => {
   };
 
   const handleFormSubmit = async (data: { message: string }) => {
-    const openaiApiKey = apiKeys?.filter(
-      (apiKey) => apiKey.service === "openai"
-    )[0].key;
-    const bingApiKey = apiKeys?.filter((apiKey) => apiKey.service === "bing")[0]
-      .key;
-    const groqApiKey = apiKeys?.filter((apiKey) => apiKey.service === "groq")[0]
-      .key;
-
     if (model.includes("gpt") || model.includes("dall")) {
       if (openaiApiKey?.length < 1) {
         alert("OpenAI API key is not set. Please set the API key first.");
@@ -95,6 +100,12 @@ const ChatInput = () => {
           navigate("/api-key-setting");
           return;
         }
+      } else if (model.includes("gemini")) {
+        if (geminiApiKey?.length < 1) {
+          alert("Gemini API key is not set. Please set the API key first.");
+          navigate("/api-key-setting");
+          return;
+        }
       }
     }
 
@@ -105,8 +116,6 @@ const ChatInput = () => {
     setMessage({ role: "user", content: data.message });
     setMessage({ role: "assistant", content: "", model: model });
     db.conversation.message.insert({
-      model: model,
-      imageUrls: "",
       content: data.message,
       role: "user",
       conversationId: 1,
@@ -115,7 +124,7 @@ const ChatInput = () => {
     if (model.includes("llama2") || model.includes("mixtral")) {
       let answer = "";
       await createGroqChatCompletionStream({
-        apiKey: apiKeys[2].key,
+        apiKey: groqApiKey,
         model: model,
         messages: [
           {
@@ -152,7 +161,7 @@ const ChatInput = () => {
     if (model === "bing") {
       search({
         query: data.message,
-        apiKey: apiKeys[1].key,
+        apiKey: bingApiKey,
       }).then((res) => {
         const keysToExtract = ["id", "name", "snippet", "url", "datePublished"];
         const extractedList = res.webPages.value.map((page) => {
@@ -175,7 +184,7 @@ const ChatInput = () => {
     if (model === "dall-e-3") {
       setImageLoading(true);
       createImage({
-        apiKey: apiKeys[0].key,
+        apiKey: openaiApiKey,
         model: model,
         prompt: data.message,
         size: "1024x1024",
@@ -198,7 +207,7 @@ const ChatInput = () => {
     if (model.includes("gpt")) {
       let answer = "";
       await createChatCompletionStream({
-        apiKey: apiKeys[0].key,
+        apiKey: openaiApiKey,
         model: model,
         messages: [
           {
@@ -229,6 +238,25 @@ const ChatInput = () => {
           role: "assistant",
           conversationId: 1,
         });
+      });
+    }
+
+    if (model.includes("gemini")) {
+      console.log("gemini 요청");
+
+      const geminiModel = geminiAI.getGenerativeModel({ model: "gemini-pro" });
+      const prompt = `${data.message}. 답변은 한글로 줘.`;
+      const result = await geminiModel.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      console.log("gemini text : ", text);
+
+      setAnswer({ message: text, model: model });
+      db.conversation.message.insert({
+        model: model,
+        content: text,
+        role: "assistant",
+        conversationId: 1,
       });
     }
 

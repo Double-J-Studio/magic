@@ -9,7 +9,7 @@ export function checkApiKeys(setApiKeys: (apiKeys: ApiKey[]) => void) {
     }
 
     if (apiKeys) {
-      const services = ["openai", "bing", "groq"];
+      const services = ["openai", "bing", "groq", "gemini"];
       if (apiKeys.length < services.length) {
         const existedServices = apiKeys.map((apiKey) => apiKey.service);
         const filteredServices = services.filter(
