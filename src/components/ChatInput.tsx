@@ -34,7 +34,9 @@ const ChatInput = () => {
       },
     }
   );
-  const { ref, ...registerMessageRes } = register("message");
+  const { ref, ...registerMessageRes } = register("message", {
+    required: "필수",
+  });
   const { messages, setMessage, setAnswer, setImageAnswer, setImageLoading } =
     useMessageStore();
   const { model } = useSelectedModelStore();
@@ -67,11 +69,13 @@ const ChatInput = () => {
     }
   };
 
-  const handleFormSubmit = (data: { message: string }) => {
+  const handleFormSubmit = async (data: { message: string }) => {
     const openaiApiKey = apiKeys?.filter(
       (apiKey) => apiKey.service === "openai"
     )[0].key;
     const bingApiKey = apiKeys?.filter((apiKey) => apiKey.service === "bing")[0]
+      .key;
+    const groqApiKey = apiKeys?.filter((apiKey) => apiKey.service === "groq")[0]
       .key;
 
     if (model.includes("gpt") || model.includes("dall")) {
@@ -85,6 +89,12 @@ const ChatInput = () => {
         alert("Bing API key is not set. Please set the API key first.");
         navigate("/api-key-setting");
         return;
+      } else if (model.includes("llama2") || model.includes("mixtral")) {
+        if (groqApiKey?.length < 1) {
+          alert("Groq API key is not set. Please set the API key first.");
+          navigate("/api-key-setting");
+          return;
+        }
       }
     }
 
@@ -103,7 +113,8 @@ const ChatInput = () => {
     });
 
     if (model.includes("llama2") || model.includes("mixtral")) {
-      createGroqChatCompletionStream({
+      let answer = "";
+      await createGroqChatCompletionStream({
         apiKey: apiKeys[2].key,
         model: model,
         messages: [
@@ -121,11 +132,20 @@ const ChatInput = () => {
         ],
         onMessage: (message) => {
           setAnswer({ message: message, model: model });
+          answer += message;
         },
         onError: (error) => {
           console.error("error", error);
           alert(error);
         },
+      }).then((_) => {
+        db.conversation.message.insert({
+          model: model,
+          imageUrls: "",
+          content: answer,
+          role: "assistant",
+          conversationId: 1,
+        });
       });
     }
 
@@ -142,6 +162,13 @@ const ChatInput = () => {
         });
 
         setAnswer({ message: JSON.stringify(extractedList), model: model });
+        db.conversation.message.insert({
+          model: model,
+          imageUrls: "",
+          content: JSON.stringify(extractedList),
+          role: "assistant",
+          conversationId: 1,
+        });
       });
     }
 
@@ -169,7 +196,8 @@ const ChatInput = () => {
     }
 
     if (model.includes("gpt")) {
-      createChatCompletionStream({
+      let answer = "";
+      await createChatCompletionStream({
         apiKey: apiKeys[0].key,
         model: model,
         messages: [
@@ -187,6 +215,7 @@ const ChatInput = () => {
         ],
         onMessage: (message) => {
           setAnswer({ message: message, model: model });
+          answer += message;
         },
         onError: (error) => {
           console.error("error", error);
@@ -196,7 +225,7 @@ const ChatInput = () => {
         db.conversation.message.insert({
           model: model,
           imageUrls: "",
-          content: messages[messages.length - 1].content,
+          content: answer,
           role: "assistant",
           conversationId: 1,
         });
@@ -206,8 +235,8 @@ const ChatInput = () => {
     reset({ message: "" });
   };
 
-  const handleMessageSend = handleSubmit(handleFormSubmit, (e) =>
-    console.log(e)
+  const handleMessageSend = handleSubmit(handleFormSubmit, (err) =>
+    console.log(err)
   );
 
   return (

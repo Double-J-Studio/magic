@@ -7,6 +7,9 @@ export interface Message {
   content: string;
   imageUrls?: string;
   isLoading?: boolean;
+  id?: number;
+  conversationId?: number;
+  createdAt?: string;
 }
 
 interface UseMessageStoreProps {
@@ -15,6 +18,7 @@ interface UseMessageStoreProps {
   setAnswer: ({ message, model }: { message: string; model: string }) => void;
   setImageAnswer: (image: string) => void;
   setImageLoading: (isLoading: boolean) => void;
+  setMessages: (messages: Message[]) => void;
 }
 
 const useMessageStore = create<UseMessageStoreProps>()((set) => ({
@@ -49,6 +53,9 @@ const useMessageStore = create<UseMessageStoreProps>()((set) => ({
 
       return { ...state, messages: clone };
     });
+  },
+  setMessages: (messages) => {
+    set((state) => ({ ...state, messages: messages }));
   },
 }));
 
