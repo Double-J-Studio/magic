@@ -23,6 +23,7 @@ const ApiKeySettingPage = () => {
   const openaiApiKey = apiKeys[0].key;
   const bingApiKey = apiKeys[1].key;
   const groqApiKey = apiKeys[2].key;
+  const geminiApiKey = apiKeys[3].key;
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
@@ -43,6 +44,7 @@ const ApiKeySettingPage = () => {
           <ApiKeyInput service="openai" title="OpenAI" value={openaiApiKey} />
           <ApiKeyInput service="bing" title="Bing" value={bingApiKey} />
           <ApiKeyInput service="groq" title="Groq" value={groqApiKey} />
+          <ApiKeyInput service="gemini" title="Gemini" value={geminiApiKey} />
         </CardContent>
       </Card>
 

@@ -24,6 +24,10 @@ const useApiKeyStore = create<UseApiKeyStoreProps>()((set) => ({
       service: "groq",
       key: "",
     },
+    {
+      service: "gemini",
+      key: "",
+    },
   ],
   setApiKeys: (apiKeys) => {
     set((state) => ({ ...state, apiKeys: apiKeys }));

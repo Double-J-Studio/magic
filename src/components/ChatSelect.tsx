@@ -45,6 +45,9 @@ const ChatSelect = () => {
           <SelectItem value="mixtral-8x7b-32768" className="cursor-pointer">
             Mixtral
           </SelectItem>
+          <SelectItem value="gemini-pro" className="cursor-pointer">
+            Gemini
+          </SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

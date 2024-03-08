@@ -42,6 +42,9 @@ const ApiKeyInput = ({ title, service, value }: ApiKeyInputProps) => {
       case "groq":
         clone[2].key = e.currentTarget.value;
         break;
+      case "gemini":
+        clone[3].key = e.currentTarget.value;
+        break;
     }
 
     setApiKeys(clone);
