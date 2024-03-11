@@ -1,17 +1,24 @@
+import { useEffect } from "react";
+
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 
 import { Button } from "@/components/ui/button";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import Conversations from "@/components/Conversations";
+import SettingPageMenu from "@/components/SettingPageMenu";
 
 import useConversationStore from "@/state/useConversationStore";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   const { conversations } = useConversationStore();
+
+  useEffect(() => {}, [currentPath]);
 
   const groupByConversations = (data: any) => {
     return data.reduce((acc: any, item: any) => {
@@ -67,6 +74,15 @@ const Sidebar = () => {
     }, {});
   };
 
+  const handleNavigationBtnClick = () => {
+    if (currentPath === "/") {
+      navigate("/setting");
+      return;
+    }
+
+    navigate("/");
+  };
+
   return (
     <>
       <ResizablePanel
@@ -76,17 +92,26 @@ const Sidebar = () => {
       >
         <div className="flex flex-col gap-2 h-full items-center justify-center px-3 pb-3.5">
           <div className="flex flex-col w-full h-full">
-            <Conversations data={groupByConversations(conversations)} />
+            {currentPath === "/" ? (
+              <Conversations data={groupByConversations(conversations)} />
+            ) : (
+              <SettingPageMenu />
+            )}
           </div>
           <div className="w-full">
             <Button
               size="sm"
               variant="ghost"
               className="flex justify-start items-center gap-1 w-full"
-              onClick={() => navigate("/api-key-setting")}
+              onClick={handleNavigationBtnClick}
             >
-              <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-500 font-semibold">Setting</span>
+              {currentPath === "/" && (
+                <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
+              )}
+
+              <span className="text-gray-500 font-semibold">
+                {currentPath === "/" ? "Setting" : "Back to the Main page"}
+              </span>
             </Button>
           </div>
         </div>

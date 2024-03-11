@@ -1,4 +1,4 @@
-import { readBinaryFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, readBinaryFile, readDir } from "@tauri-apps/api/fs";
 
 /**
  * @example readImage(
@@ -12,4 +12,11 @@ import { readBinaryFile } from "@tauri-apps/api/fs";
  */
 export async function readImage(filename: string) {
   return await readBinaryFile(filename);
+}
+
+export async function readImages() {
+  return await readDir("images", {
+    dir: BaseDirectory.AppLocalData,
+    recursive: true,
+  });
 }
