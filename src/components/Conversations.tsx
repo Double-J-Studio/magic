@@ -1,4 +1,14 @@
 import dayjs from "dayjs";
+import { PencilSquareIcon } from "@heroicons/react/20/solid";
+import { TooltipArrow } from "@radix-ui/react-tooltip";
+
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import useConversationStore, {
   Conversation,
@@ -9,8 +19,11 @@ interface ConversationsProps {
 }
 
 const Conversations = ({ data }: ConversationsProps) => {
-  const { selectedConversationId, setSelectedConversationId } =
-    useConversationStore();
+  const {
+    selectedConversationId,
+    setSelectedConversationId,
+    initSelectedConversationId,
+  } = useConversationStore();
 
   const dataKeys = Object.keys(data).map((key) => key);
   const sortedDatakeys: string[] = dataKeys
@@ -41,8 +54,39 @@ const Conversations = ({ data }: ConversationsProps) => {
     }
   }
 
+  const handleNewChatBtnClick = () => {
+    initSelectedConversationId();
+  };
+
   return (
     <div className="flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] overflow-y-auto">
+      <div className="relative">
+        <Button
+          type="button"
+          variant="ghost"
+          className="flex justify-between w-full"
+          onClick={handleNewChatBtnClick}
+        >
+          <span>New Chat</span>
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PencilSquareIcon className="w-5 h-5" />
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                sideOffset={25}
+                align="center"
+                className="bg-black border-black text-gray-100"
+              >
+                <p>New Chat</p>
+                <TooltipArrow className="animate-in fade-in-0 zoom-in-95" />
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </Button>
+      </div>
+
       {sortedDatakeys.map((key: string, i) => {
         return (
           <div key={`${key}_${i}`} className="relative mt-5">
