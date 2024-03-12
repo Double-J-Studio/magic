@@ -12,6 +12,7 @@ interface UseConversationStoreProps {
   selectedConversationId: number;
   setConversations: (conversations: Conversation[]) => void;
   setSelectedConversationId: (conversationId: number) => void;
+  initSelectedConversationId: () => void;
 }
 
 const useConversationStore = create<UseConversationStoreProps>()((set) => ({
@@ -28,6 +29,12 @@ const useConversationStore = create<UseConversationStoreProps>()((set) => ({
     set((state) => ({
       ...state,
       selectedConversationId: conversationId,
+    }));
+  },
+  initSelectedConversationId: () => {
+    set((state) => ({
+      ...state,
+      selectedConversationId: 0,
     }));
   },
 }));
