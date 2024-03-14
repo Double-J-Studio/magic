@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import useImageGalleryStore, { Images } from "@/state/useImageGalleryStore";
 
-const ImageGallery = () => {
+const ImageGalleryPage = () => {
   const { images, setImages } = useImageGalleryStore();
 
   useEffect(() => {
@@ -63,4 +63,4 @@ const ImageGallery = () => {
   );
 };
 
-export default ImageGallery;
+export default ImageGalleryPage;
