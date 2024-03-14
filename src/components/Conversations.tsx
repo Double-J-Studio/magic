@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import { PencilSquareIcon } from "@heroicons/react/20/solid";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 
+import { db } from "@/utils/tauri/db";
+
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -13,12 +15,14 @@ import {
 import useConversationStore, {
   Conversation,
 } from "@/state/useConversationStore";
+import useMessageStore from "@/state/useMessageStore";
 
 interface ConversationsProps {
   data: { [key: string]: Conversation[] };
 }
 
 const Conversations = ({ data }: ConversationsProps) => {
+  const { initMessages, setMessages } = useMessageStore();
   const {
     selectedConversationId,
     setSelectedConversationId,
@@ -56,11 +60,19 @@ const Conversations = ({ data }: ConversationsProps) => {
 
   const handleNewChatBtnClick = () => {
     initSelectedConversationId();
+    initMessages();
+  };
+
+  const handleConversationClick = (id: number) => {
+    setSelectedConversationId(id);
+    db.conversation.message.list(id).then((res) => {
+      setMessages(res);
+    });
   };
 
   return (
     <div className="flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] overflow-y-auto">
-      <div className="relative">
+      <div className="relative pr-3">
         <Button
           type="button"
           variant="ghost"
@@ -87,21 +99,25 @@ const Conversations = ({ data }: ConversationsProps) => {
         </Button>
       </div>
 
-      {sortedDatakeys.map((key: string, i) => {
+      {sortedDatakeys?.map((key: string, i) => {
         return (
           <div key={`${key}_${i}`} className="relative mt-5">
             <p className="h-9 pb-2 pt-3 px-2 text-xs font-semibold text-gray-400 text-ellipsis overflow-hidden break-all">
               {getTitle(key)}
             </p>
-            <ul>
+            <ul className="pr-3">
               {data[key].map(({ name, id }: Conversation, i: number) => (
                 <li
                   key={`conversation_${i}`}
                   className={`w-full p-2 ${selectedConversationId === id ? "bg-gray-200" : "hover:bg-gray-100"} rounded-lg text-gray-700 text-sm font-medium cursor-pointer`}
-                  onClick={() => setSelectedConversationId(id as number)}
+                  onClick={() => handleConversationClick(id as number)}
                 >
-                  <div className="relative grow overflow-hidden whitespace-nowrap text-start">
+                  <div className="relative grow overflow-hidden whitespace-nowrap">
                     {name}
+
+                    <div
+                      className={`absolute top-0 right-0 w-5 h-full bg-gradient-to-r from-transparent ${selectedConversationId === id ? "to-gray-200" : "to-slate-50"}`}
+                    />
                   </div>
                 </li>
               ))}

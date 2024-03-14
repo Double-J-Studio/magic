@@ -3,13 +3,11 @@ interface CreateGroqChatCompletionStreamParams {
   model: string;
   messages: { role: string; content: string }[];
   onMessage: (message: string) => void;
-  onError?: (error: string) => void;
 }
 
 export async function createGroqChatCompletionStream({
   apiKey,
   onMessage,
-  onError,
   ...body
 }: CreateGroqChatCompletionStreamParams) {
   const res = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
@@ -36,8 +34,7 @@ export async function createGroqChatCompletionStream({
     for (const d of data) {
       const parsed = safeParseJSON(d.replace("data: ", ""));
       if (parsed?.error) {
-        onError?.(parsed?.error?.message);
-        return;
+        throw parsed?.error?.message;
       }
 
       onMessage(parsed?.choices?.[0]?.delta?.content || "");

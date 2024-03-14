@@ -12,28 +12,20 @@ import useConversationStore from "@/state/useConversationStore";
 import useMessageStore from "@/state/useMessageStore";
 
 const MainPage = () => {
-  const { selectedConversationId, setConversations } = useConversationStore();
-  const { messages, setMessages } = useMessageStore();
+  const { lastInsertId, selectedConversationId, setConversations } =
+    useConversationStore();
+  const { messages } = useMessageStore();
 
   useEffect(() => {
     db.conversation
       .list()
       .then((res) => {
-        console.log("res", res);
         setConversations(res);
       })
       .catch((err) => console.error("err", err));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  useEffect(() => {
-    if (selectedConversationId > 0) {
-      db.conversation.message.list(selectedConversationId).then((res) => {
-        setMessages(res);
-      });
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedConversationId]);
+  }, [lastInsertId]);
 
   return (
     <main className="flex flex-col justify-between w-full h-screen p-6">

@@ -5,13 +5,11 @@ interface CreateChatCompletionStreamParams {
   model: string;
   messages: { role: string; content: string }[];
   onMessage: (message: string) => void;
-  onError?: (error: string) => void;
 }
 
 export async function createChatCompletionStream({
   apiKey,
   onMessage,
-  onError,
   ...body
 }: CreateChatCompletionStreamParams) {
   const res = await fetch(
@@ -42,8 +40,7 @@ export async function createChatCompletionStream({
     for (const d of data) {
       const parsed = safeParseJSON(d.replace("data: ", ""));
       if (parsed?.error) {
-        onError?.(parsed?.error?.message);
-        return;
+        throw parsed?.error?.message;
       }
 
       onMessage(parsed?.choices?.[0]?.delta?.content || "");
