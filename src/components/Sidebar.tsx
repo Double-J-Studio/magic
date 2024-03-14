@@ -9,7 +9,9 @@ import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import Conversations from "@/components/Conversations";
 import SettingPageMenu from "@/components/SettingPageMenu";
 
-import useConversationStore from "@/state/useConversationStore";
+import useConversationStore, {
+  Conversation,
+} from "@/state/useConversationStore";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -83,6 +85,17 @@ const Sidebar = () => {
     navigate("/");
   };
 
+  const groupedByConversations = groupByConversations(conversations);
+  function processData(data: { [key: string]: Conversation[] }) {
+    Object.keys(data)
+      ?.map((key: string) => {
+        return data[key].reverse();
+      })
+      .reverse();
+
+    return data;
+  }
+
   return (
     <>
       <ResizablePanel
@@ -90,15 +103,15 @@ const Sidebar = () => {
         maxSize={30}
         className="max-w-[260px] h-full"
       >
-        <div className="flex flex-col gap-2 h-full items-center justify-center px-3 pb-3.5">
+        <div className="flex flex-col gap-2 h-full items-center justify-center pl-3 pb-3.5">
           <div className="flex flex-col w-full h-full">
             {currentPath === "/" ? (
-              <Conversations data={groupByConversations(conversations)} />
+              <Conversations data={processData(groupedByConversations)} />
             ) : (
               <SettingPageMenu />
             )}
           </div>
-          <div className="w-full">
+          <div className="w-full pr-3">
             <Button
               size="sm"
               variant="ghost"

@@ -44,7 +44,8 @@ const ChatInput = () => {
     useMessageStore();
   const { model } = useSelectedModelStore();
   const { apiKeys, setApiKeys } = useApiKeyStore();
-  const { conversations } = useConversationStore();
+  const { selectedConversationId, setLastInsertId, setSelectedConversationId } =
+    useConversationStore();
 
   const openaiApiKey = apiKeys?.filter(
     (apiKey) => apiKey.service === "openai"
@@ -109,17 +110,30 @@ const ChatInput = () => {
       }
     }
 
-    if (conversations.length < 1) {
-      db.conversation.insert(data.message.substring(0, 15));
+    reset({ message: "" });
+
+    let conversationId = selectedConversationId;
+    if (selectedConversationId === 0) {
+      const { lastInsertId } = await db.conversation.insert(data.message);
+      conversationId = lastInsertId;
+      setLastInsertId(lastInsertId);
     }
 
-    setMessage({ role: "user", content: data.message });
+    setMessage({
+      role: "user",
+      content: data.message,
+      conversationId: conversationId,
+    });
     setMessage({ role: "assistant", content: "", model: model });
-    db.conversation.message.insert({
+    await db.conversation.message.insert({
       content: data.message,
       role: "user",
-      conversationId: 1,
+      conversationId: conversationId,
     });
+
+    if (conversationId > 0) {
+      setSelectedConversationId(conversationId);
+    }
 
     if (model.includes("llama2") || model.includes("mixtral")) {
       let answer = "";
@@ -143,42 +157,56 @@ const ChatInput = () => {
           setAnswer({ message: message, model: model });
           answer += message;
         },
-        onError: (error) => {
+      })
+        .then(async (_) => {
+          await db.conversation.message.insert({
+            model: model,
+            imageUrls: "",
+            content: answer,
+            role: "assistant",
+            conversationId: conversationId,
+          });
+        })
+        .catch((error) => {
           console.error("error", error);
           alert(error);
-        },
-      }).then((_) => {
-        db.conversation.message.insert({
-          model: model,
-          imageUrls: "",
-          content: answer,
-          role: "assistant",
-          conversationId: 1,
         });
-      });
     }
 
     if (model === "bing") {
       search({
         query: data.message,
         apiKey: bingApiKey,
-      }).then((res) => {
-        const keysToExtract = ["id", "name", "snippet", "url", "datePublished"];
-        const extractedList = res.webPages.value.map((page) => {
-          return Object.fromEntries(
-            Object.entries(page).filter(([key]) => keysToExtract.includes(key))
-          );
-        });
+      })
+        .then(async (res) => {
+          const keysToExtract = [
+            "id",
+            "name",
+            "snippet",
+            "url",
+            "datePublished",
+          ];
+          const extractedList = res.webPages.value.map((page) => {
+            return Object.fromEntries(
+              Object.entries(page).filter(([key]) =>
+                keysToExtract.includes(key)
+              )
+            );
+          });
 
-        setAnswer({ message: JSON.stringify(extractedList), model: model });
-        db.conversation.message.insert({
-          model: model,
-          imageUrls: "",
-          content: JSON.stringify(extractedList),
-          role: "assistant",
-          conversationId: 1,
+          setAnswer({ message: JSON.stringify(extractedList), model: model });
+          await db.conversation.message.insert({
+            model: model,
+            imageUrls: "",
+            content: JSON.stringify(extractedList),
+            role: "assistant",
+            conversationId: conversationId,
+          });
+        })
+        .catch((error) => {
+          console.error("error", error);
+          alert(error);
         });
-      });
     }
 
     if (model === "dall-e-3") {
@@ -188,20 +216,24 @@ const ChatInput = () => {
         model: model,
         prompt: data.message,
         size: "1024x1024",
-      }).then((res: any) => {
-        readImage(res).then((data) => {
-          const blob = new Blob([data]);
-          setImageAnswer(URL.createObjectURL(blob));
-          setImageLoading(false);
-          db.conversation.message.insert({
-            model: model,
-            imageUrls: URL.createObjectURL(blob),
-            content: "",
-            role: "",
-            conversationId: 1,
+      })
+        .then((res: any) => {
+          readImage(res).then(async (data) => {
+            const blob = new Blob([data]);
+            setImageAnswer(URL.createObjectURL(blob));
+            setImageLoading(false);
+            await db.conversation.message.insert({
+              model: model,
+              imageUrls: URL.createObjectURL(blob),
+              content: "",
+              role: "assistant",
+              conversationId: conversationId,
+            });
           });
+        })
+        .catch((error) => {
+          console.error("error", error);
         });
-      });
     }
 
     if (model.includes("gpt")) {
@@ -226,41 +258,37 @@ const ChatInput = () => {
           setAnswer({ message: message, model: model });
           answer += message;
         },
-        onError: (error) => {
+      })
+        .then(async (_) => {
+          await db.conversation.message.insert({
+            model: model,
+            imageUrls: "",
+            content: answer,
+            role: "assistant",
+            conversationId: conversationId,
+          });
+        })
+        .catch((error) => {
           console.error("error", error);
           alert(error);
-        },
-      }).then((_) => {
-        db.conversation.message.insert({
-          model: model,
-          imageUrls: "",
-          content: answer,
-          role: "assistant",
-          conversationId: 1,
         });
-      });
     }
 
     if (model.includes("gemini")) {
-      console.log("gemini 요청");
-
       const geminiModel = geminiAI.getGenerativeModel({ model: "gemini-pro" });
       const prompt = `${data.message}. 답변은 한글로 줘.`;
       const result = await geminiModel.generateContent(prompt);
       const response = await result.response;
-      const text = response.text();
-      console.log("gemini text : ", text);
+      const text = response?.text();
 
       setAnswer({ message: text, model: model });
-      db.conversation.message.insert({
+      await db.conversation.message.insert({
         model: model,
         content: text,
         role: "assistant",
-        conversationId: 1,
+        conversationId: conversationId,
       });
     }
-
-    reset({ message: "" });
   };
 
   const handleMessageSend = handleSubmit(handleFormSubmit, (err) =>

@@ -19,6 +19,7 @@ interface UseMessageStoreProps {
   setImageAnswer: (image: string) => void;
   setImageLoading: (isLoading: boolean) => void;
   setMessages: (messages: Message[]) => void;
+  initMessages: () => void;
 }
 
 const useMessageStore = create<UseMessageStoreProps>()((set) => ({
@@ -30,6 +31,7 @@ const useMessageStore = create<UseMessageStoreProps>()((set) => ({
   setAnswer: ({ message, model }) => {
     set((state) => {
       const clone = JSON.parse(JSON.stringify(state.messages));
+
       clone[clone.length - 1].model = model;
       clone[clone.length - 1].content += message;
 
@@ -56,6 +58,9 @@ const useMessageStore = create<UseMessageStoreProps>()((set) => ({
   },
   setMessages: (messages) => {
     set((state) => ({ ...state, messages: messages }));
+  },
+  initMessages: () => {
+    set((state) => ({ ...state, messages: [] }));
   },
 }));
 
