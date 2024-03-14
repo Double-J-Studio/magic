@@ -1,8 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 
 import DefaultLayout from "@/components/layout/DefaultLayout";
-import SettingPage from "@/pages/SettingPage";
+import SettingLayout from "@/components/layout/SettingLayout";
 import MainPage from "@/pages/MainPage";
+import ApiKeySetting from "@/pages/ApiKeySettingPage";
+import ImageGallery from "@/pages/ImageGalleryPage";
 import PageNotFound from "@/pages/PageNotFound";
 
 const Router = () => {
@@ -10,7 +12,12 @@ const Router = () => {
     <Routes>
       <Route path="/" element={<DefaultLayout />}>
         <Route index element={<MainPage />} />
-        <Route path="/setting" element={<SettingPage />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Route>
+
+      <Route path="/setting" element={<SettingLayout />}>
+        <Route path="api-key-setting" element={<ApiKeySetting />} />
+        <Route path="image-gallery" element={<ImageGallery />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
