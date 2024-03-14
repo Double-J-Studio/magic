@@ -12,6 +12,7 @@ import SettingPageMenu from "@/components/SettingPageMenu";
 import useConversationStore, {
   Conversation,
 } from "@/state/useConversationStore";
+import useSettingMenuStore from "@/state/useSettingMenuStore";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -19,8 +20,14 @@ const Sidebar = () => {
   const currentPath = location.pathname;
 
   const { conversations } = useConversationStore();
+  const { setSelectedMenuItem } = useSettingMenuStore();
 
-  useEffect(() => {}, [currentPath]);
+  useEffect(() => {
+    if (currentPath !== "/setting") {
+      setSelectedMenuItem("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPath]);
 
   const groupByConversations = (data: any) => {
     return data.reduce((acc: any, item: any) => {
