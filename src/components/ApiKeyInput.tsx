@@ -66,7 +66,7 @@ const ApiKeyInput = ({ title, service, value }: ApiKeyInputProps) => {
             id="apiKey"
             type={toggle ? "text" : "password"}
             placeholder="Enter your API key"
-            className="w-full"
+            className="w-full pr-10"
             value={value}
             onChange={(e) => handleApiKeyChange(e, service)}
           />
@@ -74,7 +74,7 @@ const ApiKeyInput = ({ title, service, value }: ApiKeyInputProps) => {
             type="button"
             size="icon"
             variant="ghost"
-            className="absolute top-0 right-0 flex justify-center items-center h-full"
+            className="absolute top-[2px] right-[2px] flex justify-center items-center w-[36px] h-[36px]"
             onClick={() => handleInputTypeChange()}
           >
             {toggle ? (
