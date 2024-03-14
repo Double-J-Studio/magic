@@ -5,6 +5,7 @@ const database = await Database.load("sqlite:magic.db");
 export const db = {
   conversation: {
     insert: insertConversation,
+    delete: deleteConversation,
     list: getConversations,
     byId: getConversationById,
 
@@ -27,6 +28,13 @@ async function insertConversation(name: string) {
     "INSERT INTO conversations (name) VALUES ($1)",
     [name]
   );
+}
+
+async function deleteConversation(id: Conversation["id"]) {
+  await database.execute("DELETE FROM messages where conversationId = $1", [
+    id,
+  ]);
+  await database.execute("DELETE FROM conversations WHERE id = $1", [id]);
 }
 
 export async function getConversations(): Promise<Conversation[]> {
