@@ -11,16 +11,22 @@ interface UseConversationStoreProps {
   conversations: Conversation[];
   selectedConversationId: number;
   lastInsertId: number;
+  clickedDeleteButtonId: number;
+  shouldRefetch: boolean;
   setConversations: (conversations: Conversation[]) => void;
   setSelectedConversationId: (conversationId: number) => void;
   initSelectedConversationId: () => void;
   setLastInsertId: (id: number) => void;
+  setDeleteButtonId: (id: number) => void;
+  refetch: () => void;
 }
 
 const useConversationStore = create<UseConversationStoreProps>()((set) => ({
   conversations: [],
   selectedConversationId: 0,
   lastInsertId: 0,
+  clickedDeleteButtonId: 0,
+  shouldRefetch: false,
 
   setConversations: (conversations) => {
     set((state) => ({
@@ -44,6 +50,18 @@ const useConversationStore = create<UseConversationStoreProps>()((set) => ({
     set((state) => ({
       ...state,
       lastInsertId: id,
+    }));
+  },
+  setDeleteButtonId: (id) => {
+    set((state) => ({
+      ...state,
+      clickedDeleteButtonId: id,
+    }));
+  },
+  refetch: () => {
+    set((state) => ({
+      ...state,
+      shouldRefetch: !state.shouldRefetch,
     }));
   },
 }));
