@@ -20,6 +20,7 @@ interface UseMessageStoreProps {
   setImageLoading: (isLoading: boolean) => void;
   setMessages: (messages: Message[]) => void;
   initMessages: () => void;
+  popMessages: () => void;
 }
 
 const useMessageStore = create<UseMessageStoreProps>()((set) => ({
@@ -61,6 +62,14 @@ const useMessageStore = create<UseMessageStoreProps>()((set) => ({
   },
   initMessages: () => {
     set((state) => ({ ...state, messages: [] }));
+  },
+  popMessages: () => {
+    set((state) => {
+      const clone = JSON.parse(JSON.stringify(state.messages));
+      clone.pop();
+
+      return { ...state, messages: clone };
+    });
   },
 }));
 

@@ -25,6 +25,7 @@ import useSelectedModelStore from "@/state/useSelectedModelStore";
 import useMessageStore from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
 import useApiKeyStore from "@/state/useApiKeyStore";
+import useAlertStore, { AlertInformation } from "@/state/useAlertStore";
 
 const ChatInput = () => {
   const navigate = useNavigate();
@@ -40,12 +41,19 @@ const ChatInput = () => {
     required: "필수",
   });
 
-  const { messages, setMessage, setAnswer, setImageAnswer, setImageLoading } =
-    useMessageStore();
+  const {
+    messages,
+    setMessage,
+    setAnswer,
+    setImageAnswer,
+    setImageLoading,
+    popMessages,
+  } = useMessageStore();
   const { model } = useSelectedModelStore();
   const { apiKeys, setApiKeys } = useApiKeyStore();
   const { selectedConversationId, setLastInsertId, setSelectedConversationId } =
     useConversationStore();
+  const { open: alertOpen, information, setInformation } = useAlertStore();
 
   const openaiApiKey = apiKeys?.filter(
     (apiKey) => apiKey.service === "openai"
@@ -83,28 +91,45 @@ const ChatInput = () => {
     }
   };
 
+  function setAlertInformation({
+    description,
+    service,
+  }: {
+    description?: string;
+    service?: string;
+  }) {
+    if (description) {
+      setInformation({ description: description });
+    }
+
+    if (service) {
+      setInformation({
+        pathname: "/setting/api-key-setting",
+        description: `${service} API key is not set. Please set the API key first.`,
+      });
+    }
+
+    alertOpen();
+  }
+
   const handleFormSubmit = async (data: { message: string }) => {
     if (model.includes("gpt") || model.includes("dall")) {
       if (openaiApiKey?.length < 1) {
-        alert("OpenAI API key is not set. Please set the API key first.");
-        navigate("/api-key-setting");
+        setAlertInformation({ service: "OpenAI" });
         return;
       }
     } else if (model.includes("bing")) {
       if (bingApiKey?.length < 1) {
-        alert("Bing API key is not set. Please set the API key first.");
-        navigate("/api-key-setting");
+        setAlertInformation({ service: "Bing" });
         return;
       } else if (model.includes("llama2") || model.includes("mixtral")) {
         if (groqApiKey?.length < 1) {
-          alert("Groq API key is not set. Please set the API key first.");
-          navigate("/api-key-setting");
+          setAlertInformation({ service: "Groq" });
           return;
         }
       } else if (model.includes("gemini")) {
         if (geminiApiKey?.length < 1) {
-          alert("Gemini API key is not set. Please set the API key first.");
-          navigate("/api-key-setting");
+          setAlertInformation({ service: "Gemini" });
           return;
         }
       }
@@ -169,7 +194,10 @@ const ChatInput = () => {
         })
         .catch((error) => {
           console.error("error", error);
-          alert(error);
+          popMessages();
+          setAlertInformation({
+            description: error,
+          });
         });
     }
 
@@ -205,7 +233,10 @@ const ChatInput = () => {
         })
         .catch((error) => {
           console.error("error", error);
-          alert(error);
+          popMessages();
+          setAlertInformation({
+            description: error,
+          });
         });
     }
 
@@ -233,6 +264,10 @@ const ChatInput = () => {
         })
         .catch((error) => {
           console.error("error", error);
+          popMessages();
+          setAlertInformation({
+            description: error,
+          });
         });
     }
 
@@ -270,24 +305,35 @@ const ChatInput = () => {
         })
         .catch((error) => {
           console.error("error", error);
-          alert(error);
+          popMessages();
+          setAlertInformation({
+            description: error,
+          });
         });
     }
 
     if (model.includes("gemini")) {
       const geminiModel = geminiAI.getGenerativeModel({ model: "gemini-pro" });
       const prompt = `${data.message}. 답변은 한글로 줘.`;
-      const result = await geminiModel.generateContent(prompt);
-      const response = await result.response;
-      const text = response?.text();
+      try {
+        const result = await geminiModel.generateContent(prompt);
+        const response = await result.response;
+        const text = response?.text();
 
-      setAnswer({ message: text, model: model });
-      await db.conversation.message.insert({
-        model: model,
-        content: text,
-        role: "assistant",
-        conversationId: conversationId,
-      });
+        setAnswer({ message: text, model: model });
+        await db.conversation.message.insert({
+          model: model,
+          content: text,
+          role: "assistant",
+          conversationId: conversationId,
+        });
+      } catch (error: any) {
+        console.error("error", error);
+        popMessages();
+        setAlertInformation({
+          description: error,
+        });
+      }
     }
   };
 
