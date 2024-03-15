@@ -12,8 +12,12 @@ import useConversationStore from "@/state/useConversationStore";
 import useMessageStore from "@/state/useMessageStore";
 
 const MainPage = () => {
-  const { lastInsertId, selectedConversationId, setConversations } =
-    useConversationStore();
+  const {
+    lastInsertId,
+    selectedConversationId,
+    shouldRefetch,
+    setConversations,
+  } = useConversationStore();
   const { messages } = useMessageStore();
 
   useEffect(() => {
@@ -25,7 +29,7 @@ const MainPage = () => {
       .catch((err) => console.error("err", err));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastInsertId]);
+  }, [lastInsertId, shouldRefetch]);
 
   return (
     <main className="flex flex-col justify-between w-full h-screen p-6">

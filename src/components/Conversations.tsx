@@ -1,5 +1,7 @@
+import { MouseEvent } from "react";
+
 import dayjs from "dayjs";
-import { PencilSquareIcon } from "@heroicons/react/20/solid";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 
 import { db } from "@/utils/tauri/db";
@@ -11,11 +13,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ConversationsDialog from "@/components/ConversationsDialog";
 
 import useConversationStore, {
   Conversation,
 } from "@/state/useConversationStore";
 import useMessageStore from "@/state/useMessageStore";
+import useDialogStore from "@/state/useDialogStore";
 
 interface ConversationsProps {
   data: { [key: string]: Conversation[] };
@@ -24,10 +28,14 @@ interface ConversationsProps {
 const Conversations = ({ data }: ConversationsProps) => {
   const { initMessages, setMessages } = useMessageStore();
   const {
+    conversations,
     selectedConversationId,
+    clickedDeleteButtonId,
     setSelectedConversationId,
     initSelectedConversationId,
+    setDeleteButtonId,
   } = useConversationStore();
+  const { open } = useDialogStore();
 
   const dataKeys = Object.keys(data).map((key) => key);
   const sortedDatakeys: string[] = dataKeys
@@ -63,12 +71,21 @@ const Conversations = ({ data }: ConversationsProps) => {
     initMessages();
   };
 
-  const handleConversationClick = (id: number) => {
+  const handleConversationClick = async (id: number) => {
     setSelectedConversationId(id);
-    db.conversation.message.list(id).then((res) => {
+    await db.conversation.message.list(id).then((res) => {
       setMessages(res);
     });
   };
+
+  const handleDialogOpen = (e: MouseEvent<HTMLButtonElement>, id: number) => {
+    e.stopPropagation();
+    setDeleteButtonId(id);
+    open();
+  };
+
+  console.log("conversation: ", conversations);
+  console.log("clickedDeleteButtonId: : ", clickedDeleteButtonId);
 
   return (
     <div className="flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] overflow-y-auto">
@@ -109,7 +126,7 @@ const Conversations = ({ data }: ConversationsProps) => {
               {data[key].map(({ name, id }: Conversation, i: number) => (
                 <li
                   key={`conversation_${i}`}
-                  className={`w-full p-2 ${selectedConversationId === id ? "bg-gray-200" : "hover:bg-gray-100"} rounded-lg text-gray-700 text-sm font-medium cursor-pointer`}
+                  className={`relative w-full p-2 ${selectedConversationId === id ? "bg-gray-200" : "hover:bg-gray-100"} rounded-lg text-gray-700 text-sm font-medium cursor-pointer group/item`}
                   onClick={() => handleConversationClick(id as number)}
                 >
                   <div className="relative grow overflow-hidden whitespace-nowrap">
@@ -118,6 +135,33 @@ const Conversations = ({ data }: ConversationsProps) => {
                     <div
                       className={`absolute top-0 right-0 w-5 h-full bg-gradient-to-r from-transparent ${selectedConversationId === id ? "to-gray-200" : "to-slate-50"}`}
                     />
+                    <div
+                      className={`z-10 absolute top-[-8px] right-0 flex justify-end w-6 ${selectedConversationId === id ? "bg-gray-200" : "bg-gray-100"} invisible group-hover/item:visible`}
+                    >
+                      <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="h-9 p-1 bg-transparent group/button hover:bg-transparent"
+                              onClick={(e) => handleDialogOpen(e, id as number)}
+                            >
+                              <span className="sr-only">대화 삭제</span>
+                              <TrashIcon className="w-4 h-4 group-hover/button:text-gray-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent
+                            side="top"
+                            sideOffset={-5}
+                            align="center"
+                            className="bg-black border-black text-gray-100"
+                          >
+                            <p>Delete</p>
+                            <TooltipArrow className="animate-in fade-in-0 zoom-in-95" />
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </div>
                 </li>
               ))}
@@ -125,6 +169,8 @@ const Conversations = ({ data }: ConversationsProps) => {
           </div>
         );
       })}
+
+      <ConversationsDialog />
     </div>
   );
 };
