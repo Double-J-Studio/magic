@@ -108,7 +108,7 @@ const Sidebar = () => {
           </div>
         </div>
       </ResizablePanel>
-      <ResizableHandle withHandle className="border border-gray-200" />
+      <ResizableHandle withHandle className="border border-gray-200 z-0" />
     </>
   );
 };
