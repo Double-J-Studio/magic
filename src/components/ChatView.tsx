@@ -1,9 +1,12 @@
+import { useEffect } from "react";
+
 import { ArrowDownIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 import Markdown from "react-markdown";
 import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import remarkGfm from "remark-gfm";
 
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { readImage } from "@/utils/tauri/file";
 
 import BingMessageComponent from "@/components/BingMessageComponent";
 import SkeletonCard from "@/components/SkeletonCard";
@@ -15,7 +18,7 @@ const ChatView = () => {
   const scrollToBottom = useScrollToBottom();
   const [sticky] = useSticky();
 
-  const { messages } = useMessageStore();
+  const { messages, setMessages } = useMessageStore();
 
   const getModelName = (model: string) => {
     if (model?.includes("gpt")) {
@@ -36,6 +39,39 @@ const ChatView = () => {
 
     return capitalizeFirstLetter(model);
   };
+
+  useEffect(() => {
+    async function loadImages() {
+      const filtered = messages.filter(
+        (message) => message.imageUrls && !message.imageBlobUrl
+      );
+      if (filtered.length > 0) {
+        const blobUrlByImagePath: Record<string, string> = {};
+        await Promise.all(
+          filtered.map(async (message) => {
+            const image = await readImage(message.imageUrls!);
+            const blob = new Blob([image]);
+            const blobUrl = URL.createObjectURL(blob);
+            blobUrlByImagePath[message.imageUrls!] = blobUrl;
+          })
+        );
+
+        const clone: Message[] = JSON.parse(JSON.stringify(messages));
+        Object.keys(blobUrlByImagePath).forEach((imagePath) => {
+          const found = clone.find(
+            (message) => message.imageUrls === imagePath
+          );
+          if (found) {
+            found.imageBlobUrl = blobUrlByImagePath[imagePath];
+          }
+        });
+        setMessages(clone);
+      }
+    }
+
+    loadImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   return (
     <>
@@ -58,10 +94,10 @@ const ChatView = () => {
                     ? capitalizeFirstLetter(message.role)
                     : getModelName(message.model as string)}
                 </div>
-                {message.imageUrls &&
-                  (!message.isLoading ? (
+                {message.model?.includes("dall") &&
+                  (!message.isLoading && message.imageBlobUrl ? (
                     <img
-                      src={message.imageUrls}
+                      src={message.imageBlobUrl}
                       alt="dall-e3_image"
                       className="rounded-md"
                     />

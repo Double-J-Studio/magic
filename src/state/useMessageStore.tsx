@@ -6,6 +6,7 @@ export interface Message {
   role: string;
   content: string;
   imageUrls?: string;
+  imageBlobUrl?: string;
   isLoading?: boolean;
   id?: number;
   conversationId?: number;

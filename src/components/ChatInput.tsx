@@ -25,10 +25,9 @@ import useSelectedModelStore from "@/state/useSelectedModelStore";
 import useMessageStore from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
 import useApiKeyStore from "@/state/useApiKeyStore";
-import useAlertStore, { AlertInformation } from "@/state/useAlertStore";
+import useAlertStore from "@/state/useAlertStore";
 
 const ChatInput = () => {
-  const navigate = useNavigate();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { register, handleSubmit, getValues, setValue, watch, reset } = useForm(
     {
@@ -53,7 +52,7 @@ const ChatInput = () => {
   const { apiKeys, setApiKeys } = useApiKeyStore();
   const { selectedConversationId, setLastInsertId, setSelectedConversationId } =
     useConversationStore();
-  const { open: alertOpen, information, setInformation } = useAlertStore();
+  const { open: alertOpen, setInformation } = useAlertStore();
 
   const openaiApiKey = apiKeys?.filter(
     (apiKey) => apiKey.service === "openai"
@@ -250,12 +249,11 @@ const ChatInput = () => {
       })
         .then((res: any) => {
           readImage(res).then(async (data) => {
-            const blob = new Blob([data]);
-            setImageAnswer(URL.createObjectURL(blob));
+            setImageAnswer(res);
             setImageLoading(false);
             await db.conversation.message.insert({
               model: model,
-              imageUrls: URL.createObjectURL(blob),
+              imageUrls: res,
               content: "",
               role: "assistant",
               conversationId: conversationId,
