@@ -4,6 +4,7 @@ import { ArrowDownIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 import Markdown from "react-markdown";
 import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import remarkGfm from "remark-gfm";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { capitalizeFirstLetter } from "@/lib/utils";
 import { readImage } from "@/utils/tauri/file";
@@ -12,13 +13,18 @@ import BingMessageComponent from "@/components/BingMessageComponent";
 import SkeletonCard from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 
-import useMessageStore, { Message } from "@/state/useMessageStore";
+import { Message } from "@/state/useMessageStore";
+import useConversationStore from "@/state/useConversationStore";
 
 const ChatView = () => {
   const scrollToBottom = useScrollToBottom();
   const [sticky] = useSticky();
 
-  const { messages, setMessages } = useMessageStore();
+  const { selectedConversationId } = useConversationStore();
+
+  const queryClient = useQueryClient();
+  const messages: Message[] =
+    queryClient.getQueryData(["messages", selectedConversationId]) || [];
 
   const getModelName = (model: string) => {
     if (model?.includes("gpt")) {
@@ -42,9 +48,9 @@ const ChatView = () => {
 
   useEffect(() => {
     async function loadImages() {
-      const filtered = messages.filter(
+      const filtered = messages?.filter(
         (message) => message.imageUrls && !message.imageBlobUrl
-      );
+      ) as Message[];
       if (filtered.length > 0) {
         const blobUrlByImagePath: Record<string, string> = {};
         await Promise.all(
@@ -65,7 +71,8 @@ const ChatView = () => {
             found.imageBlobUrl = blobUrlByImagePath[imagePath];
           }
         });
-        setMessages(clone);
+
+        queryClient.setQueryData(["messages", selectedConversationId], clone);
       }
     }
 
@@ -75,8 +82,9 @@ const ChatView = () => {
 
   return (
     <>
-      {messages.filter((message: Message) => message.role === "user").length >
-        0 &&
+      {messages &&
+        messages.filter((message: Message) => message.role === "user").length >
+          0 &&
         messages.map((message: Message, i: number) => {
           return (
             <div key={`message_${i}`} className="flex gap-2 px-4 py-2">

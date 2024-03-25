@@ -2,9 +2,9 @@ import { KeyboardEvent, useEffect, useRef } from "react";
 
 import { PaperAirplaneIcon } from "@heroicons/react/20/solid";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import TextareaAutosize from "react-textarea-autosize";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { checkApiKeys } from "@/utils/api-key-check";
 import { search } from "@/utils/bing";
@@ -12,6 +12,7 @@ import { createGroqChatCompletionStream } from "@/utils/groq";
 import { createChatCompletionStream, createImage } from "@/utils/openai";
 import { db } from "@/utils/tauri/db";
 import { readImage } from "@/utils/tauri/file";
+import { useGetConversations } from "@/hooks/db/useGetConversations";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
-import useMessageStore from "@/state/useMessageStore";
+import useMessageStore, { Message } from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
 import useApiKeyStore from "@/state/useApiKeyStore";
 import useAlertStore from "@/state/useAlertStore";
@@ -40,19 +41,15 @@ const ChatInput = () => {
     required: "필수",
   });
 
-  const {
-    messages,
-    setMessage,
-    setAnswer,
-    setImageAnswer,
-    setImageLoading,
-    popMessages,
-  } = useMessageStore();
+  const { popMessages } = useMessageStore();
   const { model } = useSelectedModelStore();
   const { apiKeys, setApiKeys } = useApiKeyStore();
   const { selectedConversationId, setLastInsertId, setSelectedConversationId } =
     useConversationStore();
   const { open: alertOpen, setInformation } = useAlertStore();
+
+  const queryClient = useQueryClient();
+  const { refetch } = useGetConversations();
 
   const openaiApiKey = apiKeys?.filter(
     (apiKey) => apiKey.service === "openai"
@@ -141,14 +138,20 @@ const ChatInput = () => {
       const { lastInsertId } = await db.conversation.insert(data.message);
       conversationId = lastInsertId;
       setLastInsertId(lastInsertId);
+      refetch();
     }
 
-    setMessage({
+    const currentData =
+      queryClient.getQueryData(["messages", conversationId]) || [];
+    const clone: Message[] = JSON.parse(JSON.stringify(currentData));
+    clone.push({
       role: "user",
       content: data.message,
       conversationId: conversationId,
     });
-    setMessage({ role: "assistant", content: "", model: model });
+    clone.push({ role: "assistant", content: "", model: model });
+    queryClient.setQueryData(["messages", conversationId], clone);
+
     await db.conversation.message.insert({
       content: data.message,
       role: "user",
@@ -169,7 +172,7 @@ const ChatInput = () => {
             role: "system",
             content: "You are a helpful AI. 답변은 한글로 줘.",
           },
-          ...messages.map((message) => {
+          ...clone.map((message) => {
             return { role: message.role, content: message.content };
           }),
           {
@@ -178,8 +181,17 @@ const ChatInput = () => {
           },
         ],
         onMessage: (message) => {
-          setAnswer({ message: message, model: model });
           answer += message;
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (prev: Message[]) => {
+              const clone = JSON.parse(JSON.stringify(prev));
+              clone[clone.length - 1].model = model;
+              clone[clone.length - 1].content += message;
+
+              return clone;
+            }
+          );
         },
       })
         .then(async (_) => {
@@ -221,7 +233,17 @@ const ChatInput = () => {
             );
           });
 
-          setAnswer({ message: JSON.stringify(extractedList), model: model });
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (prev: Message[]) => {
+              const clone = JSON.parse(JSON.stringify(prev));
+              clone[clone.length - 1].model = model;
+              clone[clone.length - 1].content += JSON.stringify(extractedList);
+
+              return clone;
+            }
+          );
+
           await db.conversation.message.insert({
             model: model,
             imageUrls: "",
@@ -240,7 +262,9 @@ const ChatInput = () => {
     }
 
     if (model === "dall-e-3") {
-      setImageLoading(true);
+      clone[clone.length - 1].type = "image";
+      clone[clone.length - 1].isLoading = true;
+
       createImage({
         apiKey: openaiApiKey,
         model: model,
@@ -249,8 +273,18 @@ const ChatInput = () => {
       })
         .then((res: any) => {
           readImage(res).then(async (data) => {
-            setImageAnswer(res);
-            setImageLoading(false);
+            queryClient.setQueryData(
+              ["messages", conversationId],
+              (prev: Message[]) => {
+                const clone = JSON.parse(JSON.stringify(prev));
+                clone[clone.length - 1].model = model;
+                clone[clone.length - 1].imageUrls = res;
+                clone[clone.length - 1].isLoading = false;
+
+                return clone;
+              }
+            );
+
             await db.conversation.message.insert({
               model: model,
               imageUrls: res,
@@ -279,7 +313,7 @@ const ChatInput = () => {
             role: "system",
             content: "You are a helpful AI. 답변은 한글로 줘.",
           },
-          ...messages.map((message) => {
+          ...clone.map((message) => {
             return { role: message.role, content: message.content };
           }),
           {
@@ -288,8 +322,18 @@ const ChatInput = () => {
           },
         ],
         onMessage: (message) => {
-          setAnswer({ message: message, model: model });
           answer += message;
+
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (prev: Message[]) => {
+              const clone = JSON.parse(JSON.stringify(prev));
+              clone[clone.length - 1].model = model;
+              clone[clone.length - 1].content += message;
+
+              return clone;
+            }
+          );
         },
       })
         .then(async (_) => {
@@ -318,7 +362,17 @@ const ChatInput = () => {
         const response = await result.response;
         const text = response?.text();
 
-        setAnswer({ message: text, model: model });
+        queryClient.setQueryData(
+          ["messages", conversationId],
+          (prev: Message[]) => {
+            const clone = JSON.parse(JSON.stringify(prev));
+            clone[clone.length - 1].model = model;
+            clone[clone.length - 1].content += text;
+
+            return clone;
+          }
+        );
+
         await db.conversation.message.insert({
           model: model,
           content: text,

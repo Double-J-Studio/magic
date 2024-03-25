@@ -1,4 +1,4 @@
-import { db } from "@/utils/tauri/db";
+import { useDeleteConversation } from "@/hooks/db/useDeleteConversation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,16 +13,15 @@ import {
 
 import useConversationStore from "@/state/useConversationStore";
 import useDialogStore from "@/state/useDialogStore";
-import useMessageStore from "@/state/useMessageStore";
 
 const ConversationsDialog = () => {
   const { isOpen, close, toggle } = useDialogStore();
-  const { clickedDeleteButtonId, refetch } = useConversationStore();
-  const { initMessages } = useMessageStore();
+  const { clickedDeleteButtonId } = useConversationStore();
+
+  const { mutate: deleteConversation } = useDeleteConversation();
 
   const handleDeleteButtonClick = async (id: number) => {
-    await db.conversation.delete(id).then((_) => refetch());
-    initMessages();
+    deleteConversation(id);
     close();
   };
 
