@@ -1,19 +1,23 @@
-import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import { Cog6ToothIcon } from "@heroicons/react/20/solid";
+
+import { useGetConversations } from "@/hooks/db/useGetConversations";
 
 import { Button } from "@/components/ui/button";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import Conversations from "@/components/Conversations";
 
-import useConversationStore, {
-  Conversation,
-} from "@/state/useConversationStore";
+import { Conversation } from "@/state/useConversationStore";
 
 const Sidebar = () => {
   const navigate = useNavigate();
 
-  const { conversations } = useConversationStore();
+  const { conversations, isLoading } = useGetConversations();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   const groupByConversations = (data: any) => {
     return data.reduce((acc: any, item: any) => {

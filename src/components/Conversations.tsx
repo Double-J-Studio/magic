@@ -4,8 +4,6 @@ import dayjs from "dayjs";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 
-import { db } from "@/utils/tauri/db";
-
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -18,7 +16,6 @@ import ConversationsDialog from "@/components/ConversationsDialog";
 import useConversationStore, {
   Conversation,
 } from "@/state/useConversationStore";
-import useMessageStore from "@/state/useMessageStore";
 import useDialogStore from "@/state/useDialogStore";
 
 interface ConversationsProps {
@@ -26,11 +23,8 @@ interface ConversationsProps {
 }
 
 const Conversations = ({ data }: ConversationsProps) => {
-  const { initMessages, setMessages } = useMessageStore();
   const {
-    conversations,
     selectedConversationId,
-    clickedDeleteButtonId,
     setSelectedConversationId,
     initSelectedConversationId,
     setDeleteButtonId,
@@ -68,14 +62,10 @@ const Conversations = ({ data }: ConversationsProps) => {
 
   const handleNewChatBtnClick = () => {
     initSelectedConversationId();
-    initMessages();
   };
 
   const handleConversationClick = async (id: number) => {
     setSelectedConversationId(id);
-    await db.conversation.message.list(id).then((res) => {
-      setMessages(res);
-    });
   };
 
   const handleDialogOpen = (e: MouseEvent<HTMLButtonElement>, id: number) => {
@@ -83,9 +73,6 @@ const Conversations = ({ data }: ConversationsProps) => {
     setDeleteButtonId(id);
     open();
   };
-
-  console.log("conversation: ", conversations);
-  console.log("clickedDeleteButtonId: : ", clickedDeleteButtonId);
 
   return (
     <div className="flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] overflow-y-auto">

@@ -1,43 +1,9 @@
-import { useEffect } from "react";
-
-import { readImage, readImages } from "@/utils/tauri/file";
+import { useGetImages } from "@/hooks/db/useGetImages";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-import useImageGalleryStore, { Images } from "@/state/useImageGalleryStore";
-
 const ImageGalleryPage = () => {
-  const { images, setImages } = useImageGalleryStore();
-
-  useEffect(() => {
-    async function uint8ArrayToBlobUrl() {
-      const imgs = await readImages();
-      const imagesObj: Images = {};
-
-      imgs.map(async (img) => {
-        imagesObj[img.path] = { loading: true, blobUrl: "" };
-      });
-      setImages(imagesObj);
-
-      await Promise.allSettled(
-        imgs.map(async (img) => {
-          const res = await readImage(img.path);
-
-          const blob = new Blob([res], { type: "image/jpeg" });
-          const blobUrl = URL.createObjectURL(blob);
-
-          imagesObj[img.path] = {
-            loading: false,
-            blobUrl: blobUrl,
-          };
-          setImages(imagesObj);
-        })
-      );
-    }
-
-    uint8ArrayToBlobUrl();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { images } = useGetImages();
 
   return (
     <div className="w-full min-h-screen p-5">
