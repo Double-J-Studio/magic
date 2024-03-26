@@ -50,7 +50,7 @@ export async function createChatCompletionStream({
 
 interface CreateImageParams {
   apiKey: string;
-  model: "dall-e-3";
+  model: string;
   prompt: string;
   size: "1024x1024" | "1792x1024" | "1024x1792";
 }

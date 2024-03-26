@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 
 import useSettingMenuStore from "@/state/useSettingMenuStore";
 
+import { ROUTES } from "@/constant";
+
 const MENU_LIST = [
-  { id: "1", path: "/setting/api-key-setting", name: "API Key Setting" },
-  { id: "2", path: "/setting/image-gallery", name: "Image Gallery" },
+  { id: "1", path: ROUTES.API_KEY_SETTING, name: "API Key Setting" },
+  { id: "2", path: ROUTES.IMAGE_GALLERY, name: "Image Gallery" },
 ];
 
 const SettingPageMenu = () => {
@@ -48,7 +50,7 @@ const SettingPageMenu = () => {
           size="sm"
           variant="ghost"
           className="flex justify-start items-center gap-1 w-full"
-          onClick={() => navigate("/")}
+          onClick={() => navigate(ROUTES.MAIN)}
         >
           <span className="text-gray-500 font-semibold">
             Back to the Main page

@@ -28,6 +28,8 @@ import useConversationStore from "@/state/useConversationStore";
 import useApiKeyStore from "@/state/useApiKeyStore";
 import useAlertStore from "@/state/useAlertStore";
 
+import { MODELS, ROUTES } from "@/constant";
+
 const ChatInput = () => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const { register, handleSubmit, getValues, setValue, watch, reset } = useForm(
@@ -43,25 +45,26 @@ const ChatInput = () => {
 
   const { popMessages } = useMessageStore();
   const { model } = useSelectedModelStore();
-  const { apiKeys, setApiKeys } = useApiKeyStore();
+  const { setApiKeys } = useApiKeyStore();
   const { selectedConversationId, setLastInsertId, setSelectedConversationId } =
     useConversationStore();
   const { open: alertOpen, setInformation } = useAlertStore();
 
+  const openaiApiKey = useApiKeyStore((state) => state.getOpenaiApiKey());
+  const bingApiKey = useApiKeyStore((state) => state.getBingApiKey());
+  const groqApiKey = useApiKeyStore((state) => state.getGroqApiKey());
+  const geminiApiKey = useApiKeyStore((state) => state.getGeminiApiKey());
+  const geminiAI = new GoogleGenerativeAI(geminiApiKey);
+
+  const IS_GPT_MODEL = model === MODELS["GPT-3.5"] || model === MODELS["GPT-4"];
+  const IS_DALLE_MODEL = model === MODELS["DALL-E-3"];
+  const IS_OPENAI_MODEL = IS_GPT_MODEL || IS_DALLE_MODEL;
+  const IS_BING_MODEL = model === MODELS.BING;
+  const IS_GROQ_MODEL = model === MODELS.LLAMA2 || model === MODELS.MIXTRAL;
+  const IS_GEMINI_MODEL = model === MODELS.GEMINI;
+
   const queryClient = useQueryClient();
   const { refetch } = useGetConversations();
-
-  const openaiApiKey = apiKeys?.filter(
-    (apiKey) => apiKey.service === "openai"
-  )[0].key;
-  const bingApiKey = apiKeys?.filter((apiKey) => apiKey.service === "bing")[0]
-    .key;
-  const groqApiKey = apiKeys?.filter((apiKey) => apiKey.service === "groq")[0]
-    .key;
-  const geminiApiKey = apiKeys?.filter(
-    (apiKey) => apiKey.service === "gemini"
-  )[0].key;
-  const geminiAI = new GoogleGenerativeAI(geminiApiKey);
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
@@ -100,7 +103,7 @@ const ChatInput = () => {
 
     if (service) {
       setInformation({
-        pathname: "/setting/api-key-setting",
+        pathname: ROUTES.API_KEY_SETTING,
         description: `${service} API key is not set. Please set the API key first.`,
       });
     }
@@ -109,21 +112,21 @@ const ChatInput = () => {
   }
 
   const handleFormSubmit = async (data: { message: string }) => {
-    if (model.includes("gpt") || model.includes("dall")) {
+    if (IS_OPENAI_MODEL) {
       if (openaiApiKey?.length < 1) {
         setAlertInformation({ service: "OpenAI" });
         return;
       }
-    } else if (model.includes("bing")) {
+    } else if (IS_BING_MODEL) {
       if (bingApiKey?.length < 1) {
         setAlertInformation({ service: "Bing" });
         return;
-      } else if (model.includes("llama2") || model.includes("mixtral")) {
+      } else if (IS_GROQ_MODEL) {
         if (groqApiKey?.length < 1) {
           setAlertInformation({ service: "Groq" });
           return;
         }
-      } else if (model.includes("gemini")) {
+      } else if (IS_GEMINI_MODEL) {
         if (geminiApiKey?.length < 1) {
           setAlertInformation({ service: "Gemini" });
           return;
@@ -162,7 +165,7 @@ const ChatInput = () => {
       setSelectedConversationId(conversationId);
     }
 
-    if (model.includes("llama2") || model.includes("mixtral")) {
+    if (IS_GROQ_MODEL) {
       let answer = "";
       await createGroqChatCompletionStream({
         apiKey: groqApiKey,
@@ -212,7 +215,7 @@ const ChatInput = () => {
         });
     }
 
-    if (model === "bing") {
+    if (IS_BING_MODEL) {
       search({
         query: data.message,
         apiKey: bingApiKey,
@@ -261,7 +264,7 @@ const ChatInput = () => {
         });
     }
 
-    if (model === "dall-e-3") {
+    if (IS_DALLE_MODEL) {
       clone[clone.length - 1].type = "image";
       clone[clone.length - 1].isLoading = true;
 
@@ -303,7 +306,7 @@ const ChatInput = () => {
         });
     }
 
-    if (model.includes("gpt")) {
+    if (IS_GPT_MODEL) {
       let answer = "";
       await createChatCompletionStream({
         apiKey: openaiApiKey,
@@ -354,7 +357,7 @@ const ChatInput = () => {
         });
     }
 
-    if (model.includes("gemini")) {
+    if (IS_GEMINI_MODEL) {
       const geminiModel = geminiAI.getGenerativeModel({ model: "gemini-pro" });
       const prompt = `${data.message}. 답변은 한글로 줘.`;
       try {
