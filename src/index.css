@@ -77,10 +77,4 @@
   }
 }
 
-.textarea {
-  -ms-overflow-style: none;
-}
 
-.textarea::-webkit-scrollbar {
-  display: none;
-}
