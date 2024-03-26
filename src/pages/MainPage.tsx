@@ -25,6 +25,7 @@ const MainPage = () => {
             className="relative flex-1 overflow-y-auto h-[90%] pb-9"
             followButtonClassName="hidden"
             initialScrollBehavior="auto"
+            scrollViewClassName="scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-gray-100 scrollbar-track-white basic"
           >
             <ChatView />
           </ScrollToBottom>

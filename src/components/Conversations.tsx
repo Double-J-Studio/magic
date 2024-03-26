@@ -75,8 +75,8 @@ const Conversations = ({ data }: ConversationsProps) => {
   };
 
   return (
-    <div className="flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] overflow-y-auto">
-      <div className="relative pr-3">
+    <div className="flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] pr-3 overflow-y-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-gray-100 scrollbar-track-white">
+      <div className="relative">
         <Button
           type="button"
           variant="ghost"
@@ -109,7 +109,7 @@ const Conversations = ({ data }: ConversationsProps) => {
             <p className="h-9 pb-2 pt-3 px-2 text-xs font-semibold text-gray-400 text-ellipsis overflow-hidden break-all">
               {getTitle(key)}
             </p>
-            <ul className="pr-3">
+            <ul>
               {data[key].map(({ name, id }: Conversation, i: number) => (
                 <li
                   key={`conversation_${i}`}
