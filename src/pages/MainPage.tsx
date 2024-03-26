@@ -26,6 +26,7 @@ const MainPage = () => {
             followButtonClassName="hidden"
             initialScrollBehavior="auto"
             scrollViewClassName="scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-gray-100 scrollbar-track-white basic"
+            key={`scroll_to_bottom_${selectedConversationId}`}
           >
             <ChatView />
           </ScrollToBottom>
