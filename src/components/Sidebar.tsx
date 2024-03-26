@@ -10,6 +10,8 @@ import Conversations from "@/components/Conversations";
 
 import { Conversation } from "@/state/useConversationStore";
 
+import { ROUTES } from "@/constant";
+
 const Sidebar = () => {
   const navigate = useNavigate();
 
@@ -74,7 +76,7 @@ const Sidebar = () => {
   };
 
   const handleNavigationBtnClick = () => {
-    navigate("/setting/api-key-setting");
+    navigate(ROUTES.API_KEY_SETTING);
   };
 
   const groupedByConversations = groupByConversations(conversations);

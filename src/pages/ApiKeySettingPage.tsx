@@ -14,11 +14,12 @@ import {
 import useApiKeyStore from "@/state/useApiKeyStore";
 
 const ApiKeySettingPage = () => {
-  const { apiKeys, setApiKeys } = useApiKeyStore();
-  const openaiApiKey = apiKeys[0].key;
-  const bingApiKey = apiKeys[1].key;
-  const groqApiKey = apiKeys[2].key;
-  const geminiApiKey = apiKeys[3].key;
+  const { setApiKeys } = useApiKeyStore();
+
+  const openaiApiKey = useApiKeyStore((state) => state.getOpenaiApiKey());
+  const bingApiKey = useApiKeyStore((state) => state.getBingApiKey());
+  const groqApiKey = useApiKeyStore((state) => state.getGroqApiKey());
+  const geminiApiKey = useApiKeyStore((state) => state.getGeminiApiKey());
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
