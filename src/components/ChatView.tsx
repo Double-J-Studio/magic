@@ -1,9 +1,7 @@
 import { useEffect } from "react";
 
 import { ArrowDownIcon, UserCircleIcon } from "@heroicons/react/20/solid";
-import Markdown from "react-markdown";
 import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
-import remarkGfm from "remark-gfm";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { capitalizeFirstLetter } from "@/lib/utils";
@@ -12,6 +10,7 @@ import { readImage } from "@/utils/tauri/file";
 import BingMessageComponent from "@/components/BingMessageComponent";
 import SkeletonCard from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
+import MarkdownRender from "@/components/MarkdownRender";
 
 import { Message } from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
@@ -116,12 +115,7 @@ const ChatView = () => {
                 {message.role !== "user" && message.model === "bing" ? (
                   <BingMessageComponent message={message.content} />
                 ) : (
-                  <Markdown
-                    className="whitespace-pre-wrap"
-                    remarkPlugins={[remarkGfm]}
-                  >
-                    {message.content}
-                  </Markdown>
+                  <MarkdownRender mdString={message.content} />
                 )}
 
                 <div className="flex justify-start gap-3 mt-1 h-1"></div>
