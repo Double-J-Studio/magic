@@ -10,6 +10,8 @@ import {
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 
+import { GROUPED_MODELS_BY_PLATFORM } from "@/constant";
+
 const ChatSelect = () => {
   const { model, setModel } = useSelectedModelStore();
 
@@ -24,31 +26,25 @@ const ChatSelect = () => {
           placeholder={model === "gpt-3.5-turbo" ? "GPT-3.5" : "GPT-4.0"}
         />
       </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Models</SelectLabel>
-          <SelectItem value="gpt-3.5-turbo" className="cursor-pointer">
-            GPT-3.5
-          </SelectItem>
-          <SelectItem value="gpt-4-turbo-preview" className="cursor-pointer">
-            GPT-4
-          </SelectItem>
-          <SelectItem value="dall-e-3" className="cursor-pointer">
-            DALL·E 3
-          </SelectItem>
-          <SelectItem value="bing" className="cursor-pointer">
-            Bing
-          </SelectItem>
-          <SelectItem value="llama2-70b-4096" className="cursor-pointer">
-            LLaMA2
-          </SelectItem>
-          <SelectItem value="mixtral-8x7b-32768" className="cursor-pointer">
-            Mixtral
-          </SelectItem>
-          <SelectItem value="gemini-pro" className="cursor-pointer">
-            Gemini
-          </SelectItem>
-        </SelectGroup>
+      <SelectContent className="w-[200px]">
+        {Object.keys(GROUPED_MODELS_BY_PLATFORM).map((platform) => {
+          return (
+            <SelectGroup key={platform}>
+              <SelectLabel>{platform}</SelectLabel>
+              {GROUPED_MODELS_BY_PLATFORM[platform].map((model) => {
+                return (
+                  <SelectItem
+                    key={`${platform}_${model.name}`}
+                    value={model.model}
+                    className="pl-10 cursor-pointer"
+                  >
+                    {model.name}
+                  </SelectItem>
+                );
+              })}
+            </SelectGroup>
+          );
+        })}
       </SelectContent>
     </Select>
   );
