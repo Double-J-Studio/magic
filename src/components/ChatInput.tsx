@@ -7,12 +7,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { checkApiKeys } from "@/utils/api-key-check";
-import { search } from "@/utils/bing";
-import { createGroqChatCompletionStream } from "@/utils/groq";
-import { createChatCompletionStream, createImage } from "@/utils/openai";
 import { db } from "@/utils/tauri/db";
-import { readImage } from "@/utils/tauri/file";
 import { useGetConversations } from "@/hooks/db/useGetConversations";
+import {
+  bingChat,
+  geminiChat,
+  gptChat,
+  gptImageChat,
+  groqChat,
+} from "@/utils/chat";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
-import useMessageStore, { Message } from "@/state/useMessageStore";
+import { Message } from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
 import useApiKeyStore from "@/state/useApiKeyStore";
 import useAlertStore from "@/state/useAlertStore";
@@ -43,7 +46,6 @@ const ChatInput = () => {
     required: "필수",
   });
 
-  const { popMessages } = useMessageStore();
   const { model } = useSelectedModelStore();
   const { setApiKeys } = useApiKeyStore();
   const { selectedConversationId, setLastInsertId, setSelectedConversationId } =
@@ -166,25 +168,13 @@ const ChatInput = () => {
     }
 
     if (IS_GROQ_MODEL) {
-      let answer = "";
-      await createGroqChatCompletionStream({
+      groqChat({
         apiKey: groqApiKey,
         model: model,
-        messages: [
-          {
-            role: "system",
-            content: "You are a helpful AI. 답변은 한글로 줘.",
-          },
-          ...clone.map((message) => {
-            return { role: message.role, content: message.content };
-          }),
-          {
-            role: "user",
-            content: data.message,
-          },
-        ],
-        onMessage: (message) => {
-          answer += message;
+        messages: clone,
+        message: data.message,
+        conversationId: conversationId,
+        setData: (message: string) => {
           queryClient.setQueryData(
             ["messages", conversationId],
             (prev: Message[]) => {
@@ -196,46 +186,17 @@ const ChatInput = () => {
             }
           );
         },
-      })
-        .then(async (_) => {
-          await db.conversation.message.insert({
-            model: model,
-            imageUrls: "",
-            content: answer,
-            role: "assistant",
-            conversationId: conversationId,
-          });
-        })
-        .catch((error) => {
-          console.error("error", error);
-          popMessages();
-          setAlertInformation({
-            description: error,
-          });
-        });
+        setAlertInformation: setAlertInformation,
+      });
     }
 
     if (IS_BING_MODEL) {
-      search({
-        query: data.message,
+      bingChat({
         apiKey: bingApiKey,
-      })
-        .then(async (res) => {
-          const keysToExtract = [
-            "id",
-            "name",
-            "snippet",
-            "url",
-            "datePublished",
-          ];
-          const extractedList = res.webPages.value.map((page) => {
-            return Object.fromEntries(
-              Object.entries(page).filter(([key]) =>
-                keysToExtract.includes(key)
-              )
-            );
-          });
-
+        model: model,
+        message: data.message,
+        conversationId: conversationId,
+        setData: (extractedList: any) => {
           queryClient.setQueryData(
             ["messages", conversationId],
             (prev: Message[]) => {
@@ -246,87 +207,45 @@ const ChatInput = () => {
               return clone;
             }
           );
-
-          await db.conversation.message.insert({
-            model: model,
-            imageUrls: "",
-            content: JSON.stringify(extractedList),
-            role: "assistant",
-            conversationId: conversationId,
-          });
-        })
-        .catch((error) => {
-          console.error("error", error);
-          popMessages();
-          setAlertInformation({
-            description: error,
-          });
-        });
+        },
+        setAlertInformation: setAlertInformation,
+      });
     }
 
     if (IS_DALLE_MODEL) {
       clone[clone.length - 1].type = "image";
       clone[clone.length - 1].isLoading = true;
 
-      createImage({
+      gptImageChat({
         apiKey: openaiApiKey,
         model: model,
-        prompt: data.message,
-        size: "1024x1024",
-      })
-        .then((res: any) => {
-          readImage(res).then(async (data) => {
-            queryClient.setQueryData(
-              ["messages", conversationId],
-              (prev: Message[]) => {
-                const clone = JSON.parse(JSON.stringify(prev));
-                clone[clone.length - 1].model = model;
-                clone[clone.length - 1].imageUrls = res;
-                clone[clone.length - 1].isLoading = false;
+        message: data.message,
+        conversationId: conversationId,
+        setData: (res: any) => {
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (prev: Message[]) => {
+              const clone = JSON.parse(JSON.stringify(prev));
+              clone[clone.length - 1].model = model;
+              clone[clone.length - 1].imageUrls = res;
+              clone[clone.length - 1].isLoading = false;
 
-                return clone;
-              }
-            );
-
-            await db.conversation.message.insert({
-              model: model,
-              imageUrls: res,
-              content: "",
-              role: "assistant",
-              conversationId: conversationId,
-            });
-          });
-        })
-        .catch((error) => {
-          console.error("error", error);
-          popMessages();
-          setAlertInformation({
-            description: error,
-          });
-        });
+              return clone;
+            }
+          );
+        },
+        setAlertInformation: setAlertInformation,
+      });
     }
 
     if (IS_GPT_MODEL) {
-      let answer = "";
-      await createChatCompletionStream({
+      gptChat({
         apiKey: openaiApiKey,
         model: model,
-        messages: [
-          {
-            role: "system",
-            content: "You are a helpful AI. 답변은 한글로 줘.",
-          },
-          ...clone.map((message) => {
-            return { role: message.role, content: message.content };
-          }),
-          {
-            role: "user",
-            content: data.message,
-          },
-        ],
-        onMessage: (message) => {
-          answer += message;
-
+        messages: clone,
+        message: data.message,
+        conversationId: conversationId,
+        setData: (message: string) => {
           queryClient.setQueryData(
             ["messages", conversationId],
             (prev: Message[]) => {
@@ -338,57 +257,31 @@ const ChatInput = () => {
             }
           );
         },
-      })
-        .then(async (_) => {
-          await db.conversation.message.insert({
-            model: model,
-            imageUrls: "",
-            content: answer,
-            role: "assistant",
-            conversationId: conversationId,
-          });
-        })
-        .catch((error) => {
-          console.error("error", error);
-          popMessages();
-          setAlertInformation({
-            description: error,
-          });
-        });
+        setAlertInformation: setAlertInformation,
+      });
     }
 
     if (IS_GEMINI_MODEL) {
-      const geminiModel = geminiAI.getGenerativeModel({ model: "gemini-pro" });
-      const prompt = `${data.message}. 답변은 한글로 줘.`;
-      try {
-        const result = await geminiModel.generateContent(prompt);
-        const response = await result.response;
-        const text = response?.text();
+      const geminiModel = geminiAI.getGenerativeModel({ model: model });
+      geminiChat({
+        geminiModel: geminiModel,
+        model: model,
+        message: data.message,
+        conversationId: conversationId,
+        setData: (text: string) => {
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (prev: Message[]) => {
+              const clone = JSON.parse(JSON.stringify(prev));
+              clone[clone.length - 1].model = model;
+              clone[clone.length - 1].content += text;
 
-        queryClient.setQueryData(
-          ["messages", conversationId],
-          (prev: Message[]) => {
-            const clone = JSON.parse(JSON.stringify(prev));
-            clone[clone.length - 1].model = model;
-            clone[clone.length - 1].content += text;
-
-            return clone;
-          }
-        );
-
-        await db.conversation.message.insert({
-          model: model,
-          content: text,
-          role: "assistant",
-          conversationId: conversationId,
-        });
-      } catch (error: any) {
-        console.error("error", error);
-        popMessages();
-        setAlertInformation({
-          description: error,
-        });
-      }
+              return clone;
+            }
+          );
+        },
+        setAlertInformation: setAlertInformation,
+      });
     }
   };
 
