@@ -4,7 +4,6 @@ import { createGroqChatCompletionStream } from "@/utils/groq";
 import { db } from "@/utils/tauri/db";
 import { search } from "@/utils/bing";
 import { createChatCompletionStream, createImage } from "@/utils/openai";
-import { readImage } from "@/utils/tauri/file";
 
 import { Message } from "@/state/useMessageStore";
 
@@ -60,7 +59,6 @@ export async function groqChat({
     .then(async (_) => {
       await db.conversation.message.insert({
         model: model,
-        imageUrls: "",
         content: answer,
         role: "assistant",
         conversationId: conversationId,
@@ -111,7 +109,6 @@ export async function bingChat({
 
       await db.conversation.message.insert({
         model: model,
-        imageUrls: "",
         content: JSON.stringify(extractedList),
         role: "assistant",
         conversationId: conversationId,
@@ -142,31 +139,29 @@ export async function gptImageChat({
   setData,
   setAlertInformation,
 }: GptImageChat) {
-  createImage({
-    apiKey: apiKey,
-    model: model,
-    prompt: message,
-    size: "1024x1024",
-  })
-    .then((res: any) => {
-      readImage(res).then(async (data) => {
-        setData(res);
-
-        await db.conversation.message.insert({
-          model: model,
-          imageUrls: res,
-          content: "",
-          role: "assistant",
-          conversationId: conversationId,
-        });
-      });
-    })
-    .catch((error) => {
-      console.error("error", error);
-      setAlertInformation({
-        description: error,
-      });
+  try {
+    const imageUrl = await createImage({
+      apiKey: apiKey,
+      model: model,
+      prompt: message,
+      size: "1024x1024",
     });
+    setData(imageUrl);
+
+    const { lastInsertId } = await db.conversation.message.insert({
+      model: model,
+      imageUrl1: imageUrl,
+      content: "",
+      role: "assistant",
+      conversationId: conversationId,
+    });
+    await db.image.insert({ url: imageUrl, messageId: lastInsertId });
+  } catch (error) {
+    console.error("error", error);
+    setAlertInformation({
+      description: (error as Error)?.message || "something`s wrong",
+    });
+  }
 }
 
 interface GptChat {
@@ -214,7 +209,6 @@ export async function gptChat({
     .then(async (_) => {
       await db.conversation.message.insert({
         model: model,
-        imageUrls: "",
         content: answer,
         role: "assistant",
         conversationId: conversationId,

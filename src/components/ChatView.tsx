@@ -45,40 +45,6 @@ const ChatView = () => {
     return capitalizeFirstLetter(model);
   };
 
-  useEffect(() => {
-    async function loadImages() {
-      const filtered = messages?.filter(
-        (message) => message.imageUrls && !message.imageBlobUrl
-      ) as Message[];
-      if (filtered.length > 0) {
-        const blobUrlByImagePath: Record<string, string> = {};
-        await Promise.all(
-          filtered.map(async (message) => {
-            const image = await readImage(message.imageUrls!);
-            const blob = new Blob([image]);
-            const blobUrl = URL.createObjectURL(blob);
-            blobUrlByImagePath[message.imageUrls!] = blobUrl;
-          })
-        );
-
-        const clone: Message[] = JSON.parse(JSON.stringify(messages));
-        Object.keys(blobUrlByImagePath).forEach((imagePath) => {
-          const found = clone.find(
-            (message) => message.imageUrls === imagePath
-          );
-          if (found) {
-            found.imageBlobUrl = blobUrlByImagePath[imagePath];
-          }
-        });
-
-        queryClient.setQueryData(["messages", selectedConversationId], clone);
-      }
-    }
-
-    loadImages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
-
   return (
     <>
       {messages &&
@@ -102,9 +68,9 @@ const ChatView = () => {
                     : getModelName(message.model as string)}
                 </div>
                 {message.model?.includes("dall") &&
-                  (!message.isLoading && message.imageBlobUrl ? (
+                  (message.imageUrl1 ? (
                     <img
-                      src={message.imageBlobUrl}
+                      src={message.imageUrl1}
                       alt="dall-e3_image"
                       className="rounded-md"
                     />

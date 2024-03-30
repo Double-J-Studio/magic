@@ -14,6 +14,11 @@ export const db = {
       list: getMessages,
     },
   },
+
+  image: {
+    insert: insertImage,
+    list: getImages,
+  },
 };
 
 interface Conversation {
@@ -68,7 +73,7 @@ interface Message {
   model?: string;
   role: string;
   content: string;
-  imageUrls?: string; // ,로 구분됨 예) /Users/jj/Library/Application Support/app.doublejstudio.magic/images/img-2024-02-25_15-04-37.png,/Users/jj/Library/Application Support/app.doublejstudio.magic/images/img-2024-02-25_15-04-38.png
+  imageUrl1?: string;
   createdAt: string;
 }
 
@@ -79,14 +84,42 @@ async function insertMessage({
   model = "",
   role,
   content,
-  imageUrls = "",
+  imageUrl1 = "",
 }: MessageInput) {
   if (role === "assistant" && !model) {
     throw new Error("model is required");
   }
 
-  await database.execute(
-    "INSERT INTO messages (conversationId, model, role, content, imageUrls) VALUES ($1, $2, $3, $4, $5)",
-    [conversationId, model, role, content, imageUrls]
+  return await database.execute(
+    "INSERT INTO messages (conversationId, model, role, content, imageUrl1) VALUES ($1, $2, $3, $4, $5)",
+    [conversationId, model, role, content, imageUrl1]
   );
+}
+
+export async function insertImage({
+  url,
+  messageId,
+}: {
+  url: string;
+  messageId?: number;
+}) {
+  if (messageId) {
+    return await database.execute(
+      "INSERT INTO images (url, messageId) VALUES($1, $2)",
+      [url, messageId]
+    );
+  }
+
+  return await database.execute("INSERT INTO images (url) VALUES($1)", [url]);
+}
+
+export interface Image {
+  id: number;
+  messageId?: number;
+  url: string;
+  createdAt: string;
+}
+
+export async function getImages(): Promise<Image[]> {
+  return await database.select("SELECT * FROM images ORDER BY createdAt ASC");
 }

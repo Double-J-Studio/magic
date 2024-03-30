@@ -2,29 +2,29 @@ import { useGetImages } from "@/hooks/db/useGetImages";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
+import EmptyImage from "@/assets/no-image-yet.png";
+
 const ImageGalleryPage = () => {
-  const { images } = useGetImages();
+  const { images, isLoading } = useGetImages();
+  const hasImages = images && images.length > 0;
 
   return (
     <div className="w-full min-h-screen p-5">
-      <ul className="grid grid-cols-4 gap-2">
-        {images &&
-          Object.keys(images).map((image, i) => {
-            return (
-              <li key={`${image}_${i}`}>
-                {images[image].loading ? (
-                  <Skeleton className="w-full min-w-[120px] h-full min-h-[120px] rounded-xl" />
-                ) : (
-                  <img
-                    src={images[image].blobUrl}
-                    alt=""
-                    className="rounded-md"
-                  />
-                )}
+      {hasImages || isLoading ? (
+        <ul className="grid grid-cols-4 gap-2">
+          {hasImages &&
+            images.map((image) => (
+              <li key={`image-gallery-${image.id}`}>
+                <img src={image.url} alt="" className="rounded-md" />
               </li>
-            );
-          })}
-      </ul>
+            ))}
+          {isLoading && (
+            <Skeleton className="w-full min-w-[120px] h-full min-h-[120px] rounded-xl" />
+          )}
+        </ul>
+      ) : (
+        <img src={EmptyImage} alt="empty" />
+      )}
     </div>
   );
 };

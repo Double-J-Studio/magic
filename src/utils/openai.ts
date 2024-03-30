@@ -91,7 +91,7 @@ export async function createImage({ apiKey, ...body }: CreateImageParams) {
 
   const localImageUrl = await invoke("write_image", { imageUrl });
 
-  return localImageUrl;
+  return localImageUrl as string;
 }
 
 function safeParseJSON(s: string) {

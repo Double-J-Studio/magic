@@ -5,8 +5,7 @@ export interface Message {
   model?: string;
   role: string;
   content: string;
-  imageUrls?: string;
-  imageBlobUrl?: string;
+  imageUrl1?: string;
   isLoading?: boolean;
   id?: number;
   conversationId?: number;
@@ -44,7 +43,7 @@ const useMessageStore = create<UseMessageStoreProps>()((set) => ({
     set((state) => {
       const clone = JSON.parse(JSON.stringify(state.messages));
       clone[clone.length - 1].model = "dall-e-3";
-      clone[clone.length - 1].imageUrls = image;
+      clone[clone.length - 1].imageUrl1 = image;
 
       return { ...state, messages: clone };
     });
