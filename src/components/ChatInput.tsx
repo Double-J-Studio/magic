@@ -16,6 +16,7 @@ import {
   gptImageChat,
   groqChat,
 } from "@/utils/chat";
+import { useGetImages } from "@/hooks/db/useGetImages";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +68,7 @@ const ChatInput = () => {
 
   const queryClient = useQueryClient();
   const { refetch } = useGetConversations();
+  const { refetch: refetchImages } = useGetImages();
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
@@ -216,7 +218,7 @@ const ChatInput = () => {
       clone[clone.length - 1].type = "image";
       clone[clone.length - 1].isLoading = true;
 
-      gptImageChat({
+      await gptImageChat({
         apiKey: openaiApiKey,
         model: model,
         message: data.message,
@@ -227,7 +229,7 @@ const ChatInput = () => {
             (prev: Message[]) => {
               const clone = JSON.parse(JSON.stringify(prev));
               clone[clone.length - 1].model = model;
-              clone[clone.length - 1].imageUrls = res;
+              clone[clone.length - 1].imageUrl1 = res;
               clone[clone.length - 1].isLoading = false;
 
               return clone;
@@ -236,6 +238,7 @@ const ChatInput = () => {
         },
         setAlertInformation: setAlertInformation,
       });
+      await refetchImages();
     }
 
     if (IS_GPT_MODEL) {

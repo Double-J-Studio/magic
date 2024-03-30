@@ -2,10 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri_plugin_sql::{Migration, MigrationKind};
-use std::fs::{self, File};
-use std::io::copy;
 use reqwest;
-use chrono::Utc;
+use base64::{Engine as _, engine::{general_purpose}};
 
 #[tauri::command]
 fn toggle_window(window: tauri::Window) {
@@ -19,28 +17,15 @@ fn toggle_window(window: tauri::Window) {
 }
 
 #[tauri::command]
-fn write_image(image_url: &str, app: tauri::AppHandle) -> String {
-    let img_dir = format!("{}/images", app.path_resolver().app_local_data_dir().unwrap().to_string_lossy());
-    if !fs::metadata(img_dir.clone()).is_ok() {
-        match fs::create_dir(img_dir.clone()) {
-            Ok(_) => println!("Directory {} created successfully", img_dir.clone()),
-            Err(e) => eprintln!("Error creating directory {}", e)
-        }
-    }
-
-    let timestamp = Utc::now();
-    let timestamp_str = timestamp.format("%Y-%m-%d_%H-%M-%S").to_string();
-    let filename = format!("{}/img-{}.png", img_dir, timestamp_str);
+fn write_image(image_url: &str) -> String {
+    let mut base64_image:String = String::from("");
     let response = reqwest::blocking::get(image_url);
     match response {
-        Ok(mut response) => {
+        Ok(response) => {
             if response.status().is_success() {
-                let mut file = File::create(filename.clone()).expect("Failed to create file");
-
-                match copy(&mut response, &mut file) {
-                    Ok(_) => println!("Image saved successfully"),
-                    Err(e) => eprintln!("Error saving image: {}", e),
-                }
+                let image_data = response.bytes().expect("Failed to read image data");
+                base64_image = general_purpose::STANDARD.encode(&image_data);
+                base64_image = format!("data:image/jpeg;base64,{}", base64_image);
             } else {
                 eprintln!("Error: {}", response.status());
             }
@@ -48,7 +33,7 @@ fn write_image(image_url: &str, app: tauri::AppHandle) -> String {
         Err(e) => eprintln!("Error fetching image: {}", e),
     }
 
-    filename
+    base64_image
 }
 
 fn main() {
@@ -95,6 +80,53 @@ fn main() {
             description: "add imageUrls to messages table",
             sql: "ALTER TABLE messages
             ADD COLUMN imageUrls TEXT DEFAULT '';
+
+            ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 4,
+            description: "add imageUrl1 to messages table",
+            sql: "ALTER TABLE messages
+            ADD COLUMN imageUrl1 TEXT DEFAULT '';
+
+            ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 5,
+            description: "delete imageUrls in messages table",
+            sql: "
+            CREATE TABLE messages_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                conversationId INTEGER NOT NULL,
+                model TEXT DEFAULT '',
+                role TEXT  DEFAULT '',
+                content TEXT NOT NULL,
+                imageUrl1 TEXT DEFAULT '',
+                createdAt NUMERIC DEFAULT CURRENT_TIMESTAMP
+            );
+            
+            INSERT INTO messages_new (conversationId, model, role, content, imageUrl1, createdAt)
+                SELECT conversationId, model, role, content, imageUrl1, createdAt FROM messages;
+            
+            DROP TABLE messages;
+            
+            ALTER TABLE messages_new RENAME TO messages;
+
+            ",
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 6,
+            description: "create images table",
+            sql: "
+            CREATE TABLE images (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                messageId INTEGER,
+                url TEXT DEFAULT '',
+                createdAt NUMERIC DEFAULT CURRENT_TIMESTAMP
+            );
 
             ",
             kind: MigrationKind::Up,
