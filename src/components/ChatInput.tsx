@@ -19,12 +19,7 @@ import {
 import { useGetImages } from "@/hooks/db/useGetImages";
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 import { Message } from "@/state/useMessageStore";
@@ -311,26 +306,19 @@ const ChatInput = () => {
           {...registerMessageRes}
         />
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="submit"
-                aria-label="Send message"
-                className={`absolute top-2/4 right-3 translate-y-[-50%] w-[32px] h-[32px] p-0 ${
-                  watch("message").length === 0
-                    ? "bg-gray-200 pointer-events-none"
-                    : ""
-                }`}
-              >
-                <PaperAirplaneIcon className="w-3 h-3" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Send message</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip description="Send Message" side="top" sideOffset={10}>
+          <Button
+            type="submit"
+            aria-label="Send message"
+            className={`absolute top-2/4 right-3 translate-y-[-50%] w-[32px] h-[32px] p-0 ${
+              watch("message").length === 0
+                ? "bg-gray-200 pointer-events-none"
+                : ""
+            }`}
+          >
+            <PaperAirplaneIcon className="w-3 h-3" />
+          </Button>
+        </Tooltip>
       </form>
     </div>
   );

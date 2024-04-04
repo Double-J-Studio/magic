@@ -1,6 +1,5 @@
 import ScrollToBottom from "react-scroll-to-bottom";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
-import { TooltipArrow } from "@radix-ui/react-tooltip";
 
 import { useGetMessages } from "@/hooks/db/useGetMessages";
 
@@ -8,12 +7,7 @@ import ChatInput from "@/components/ChatInput";
 import ChatSelect from "@/components/ChatSelect";
 import ChatView from "@/components/ChatView";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import Tooltip from "@/components/Tooltip";
 
 import useConversationStore from "@/state/useConversationStore";
 import useSideBarStore from "@/state/useSidebarStore";
@@ -46,33 +40,24 @@ const MainPage = () => {
       <ChatInput />
 
       <div className="absolute top-1/2 left-2 transform -translate-x-1/2 -translate-y-1/2">
-        <TooltipProvider delayDuration={100}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                className="px-1 py-3 hover:bg-transparent"
-                onClick={() => toggle()}
-              >
-                {isOpen ? (
-                  <ChevronLeftIcon className="w-5 h-5" />
-                ) : (
-                  <ChevronRightIcon className="w-5 h-5" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              sideOffset={-5}
-              align="center"
-              className="bg-black border-black text-gray-100"
-            >
-              <p>{isOpen ? "Close sidebar" : "Open sidebar"}</p>
-              <TooltipArrow className="animate-in fade-in-0 zoom-in-95" />
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip
+          description={isOpen ? "Close sidebar" : "Open sidebar"}
+          side="right"
+          sideOffset={-5}
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            className="px-1 py-3 hover:bg-transparent"
+            onClick={() => toggle()}
+          >
+            {isOpen ? (
+              <ChevronLeftIcon className="w-5 h-5" />
+            ) : (
+              <ChevronRightIcon className="w-5 h-5" />
+            )}
+          </Button>
+        </Tooltip>
       </div>
     </main>
   );
