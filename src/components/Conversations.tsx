@@ -2,16 +2,10 @@ import { MouseEvent } from "react";
 
 import dayjs from "dayjs";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
-import { TooltipArrow } from "@radix-ui/react-tooltip";
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import ConversationsDialog from "@/components/ConversationsDialog";
+import Tooltip from "@/components/Tooltip";
 
 import useConversationStore, {
   Conversation,
@@ -84,22 +78,9 @@ const Conversations = ({ data }: ConversationsProps) => {
           onClick={handleNewChatBtnClick}
         >
           <span>New Chat</span>
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PencilSquareIcon className="w-5 h-5" />
-              </TooltipTrigger>
-              <TooltipContent
-                side="right"
-                sideOffset={25}
-                align="center"
-                className="bg-black border-black text-gray-100"
-              >
-                <p>New Chat</p>
-                <TooltipArrow className="animate-in fade-in-0 zoom-in-95" />
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip description="New Chat" side="right" sideOffset={25}>
+            <PencilSquareIcon className="w-5 h-5" />
+          </Tooltip>
         </Button>
       </div>
 
@@ -125,29 +106,16 @@ const Conversations = ({ data }: ConversationsProps) => {
                     <div
                       className={`z-10 absolute top-[-8px] right-0 flex justify-end w-6 ${selectedConversationId === id ? "bg-gray-200" : "bg-gray-100"} invisible group-hover/item:visible`}
                     >
-                      <TooltipProvider delayDuration={100}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="h-9 p-1 bg-transparent group/button hover:bg-transparent"
-                              onClick={(e) => handleDialogOpen(e, id as number)}
-                            >
-                              <span className="sr-only">대화 삭제</span>
-                              <TrashIcon className="w-4 h-4 group-hover/button:text-gray-600" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent
-                            side="top"
-                            sideOffset={-5}
-                            align="center"
-                            className="bg-black border-black text-gray-100"
-                          >
-                            <p>Delete</p>
-                            <TooltipArrow className="animate-in fade-in-0 zoom-in-95" />
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <Tooltip description="Delete" side="top" sideOffset={-5}>
+                        <Button
+                          variant="ghost"
+                          className="h-9 p-1 bg-transparent group/button hover:bg-transparent"
+                          onClick={(e) => handleDialogOpen(e, id as number)}
+                        >
+                          <span className="sr-only">대화 삭제</span>
+                          <TrashIcon className="w-4 h-4 group-hover/button:text-gray-600" />
+                        </Button>
+                      </Tooltip>
                     </div>
                   </div>
                 </li>
