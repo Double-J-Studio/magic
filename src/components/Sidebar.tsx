@@ -5,15 +5,23 @@ import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import { useGetConversations } from "@/hooks/db/useGetConversations";
 
 import { Button } from "@/components/ui/button";
-import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import Conversations from "@/components/Conversations";
 
 import { Conversation } from "@/state/useConversationStore";
+import useSideBarStore from "@/state/useSidebarStore";
 
 import { ROUTES } from "@/constant";
 
+const sidebarStyles = {
+  base: "w-[260px] min-h-screen transition-all duration-500 transform",
+  open: "translate-x-0",
+  close: "translate-x-0 ml-[-260px]",
+};
+
 const Sidebar = () => {
   const navigate = useNavigate();
+
+  const { isOpen } = useSideBarStore();
 
   const { conversations, isLoading } = useGetConversations();
 
@@ -91,31 +99,26 @@ const Sidebar = () => {
   }
 
   return (
-    <>
-      <ResizablePanel
-        defaultSize={30}
-        maxSize={30}
-        className="max-w-[260px] h-full"
-      >
-        <div className="flex flex-col gap-2 h-full items-center justify-center pl-3 pb-3.5">
-          <div className="flex flex-col w-full h-full">
-            <Conversations data={processData(groupedByConversations)} />
-          </div>
-          <div className="w-full pr-3">
-            <Button
-              size="sm"
-              variant="ghost"
-              className="flex justify-start items-center gap-1 w-full"
-              onClick={handleNavigationBtnClick}
-            >
-              <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-gray-500 font-semibold">Setting</span>
-            </Button>
-          </div>
+    <aside
+      className={`${sidebarStyles.base} ${isOpen ? sidebarStyles.open : sidebarStyles.close}`}
+    >
+      <div className="flex flex-col gap-2 h-full items-center justify-center pl-3 pb-3.5">
+        <div className="flex flex-col w-full h-full">
+          <Conversations data={processData(groupedByConversations)} />
         </div>
-      </ResizablePanel>
-      <ResizableHandle withHandle className="border border-gray-200 z-0" />
-    </>
+        <div className="w-full pr-3">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="flex justify-start items-center gap-1 w-full"
+            onClick={handleNavigationBtnClick}
+          >
+            <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
+            <span className="text-gray-500 font-semibold">Setting</span>
+          </Button>
+        </div>
+      </div>
+    </aside>
   );
 };
 

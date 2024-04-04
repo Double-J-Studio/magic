@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "@/components/Sidebar";
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import AlertDestructive from "@/components/AlertDestructive";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -11,19 +10,16 @@ const DefaultLayout = () => {
   const { isOpen } = useAlertStore();
 
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      className="relative h-full min-w-screen min-h-screen rounded-lg"
-    >
+    <div className="relative flex w-screen h-full min-h-screen">
       <Sidebar />
 
-      <ResizablePanel defaultSize={70} className="min-w-[calc(100%-260px)]">
+      <div className="w-screen">
         <Outlet />
-      </ResizablePanel>
+      </div>
 
       {isOpen && <AlertDestructive />}
       <Toaster />
-    </ResizablePanelGroup>
+    </div>
   );
 };
 
