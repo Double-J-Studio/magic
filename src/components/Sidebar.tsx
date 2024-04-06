@@ -13,7 +13,7 @@ import useSideBarStore from "@/state/useSidebarStore";
 import { ROUTES } from "@/constant";
 
 const sidebarStyles = {
-  base: "w-[260px] min-h-screen transition-all duration-500 transform",
+  base: "relative w-[260px] min-h-screen bg-[#fafafa] transition-all duration-500 transform",
   open: "translate-x-0",
   close: "translate-x-0 ml-[-260px]",
 };
@@ -102,7 +102,7 @@ const Sidebar = () => {
     <aside
       className={`${sidebarStyles.base} ${isOpen ? sidebarStyles.open : sidebarStyles.close}`}
     >
-      <div className="flex flex-col gap-2 h-full items-center justify-center pl-3 pb-3.5">
+      <nav className="flex flex-col gap-2 h-full items-center justify-center pl-3 pb-3.5">
         <div className="flex flex-col w-full h-full">
           <Conversations data={processData(groupedByConversations)} />
         </div>
@@ -117,7 +117,11 @@ const Sidebar = () => {
             <span className="text-gray-500 font-semibold">Setting</span>
           </Button>
         </div>
-      </div>
+      </nav>
+
+      <div
+        className={`absolute right-0 bottom-0 w-6 min-h-screen bg-gradient-to-r from-transparent to-[#fafafa]`}
+      />
     </aside>
   );
 };
