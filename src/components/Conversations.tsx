@@ -69,7 +69,7 @@ const Conversations = ({ data }: ConversationsProps) => {
   };
 
   return (
-    <div className="flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] pr-3 overflow-y-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-gray-100 scrollbar-track-white">
+    <div className="relative flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] pr-3 overflow-y-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-gray-100 scrollbar-track-[#fafafa]">
       <div className="relative">
         <Button
           type="button"
@@ -94,14 +94,14 @@ const Conversations = ({ data }: ConversationsProps) => {
               {data[key].map(({ name, id }: Conversation, i: number) => (
                 <li
                   key={`conversation_${i}`}
-                  className={`relative w-full p-2 ${selectedConversationId === id ? "bg-gray-200" : "hover:bg-gray-100"} rounded-lg text-gray-700 text-sm font-medium cursor-pointer group/item`}
+                  className={`relative w-full p-2 pr-0 ${selectedConversationId === id ? "bg-gray-200" : "hover:bg-gray-100"} rounded-lg text-gray-700 text-sm font-medium cursor-pointer group/item`}
                   onClick={() => handleConversationClick(id as number)}
                 >
                   <div className="relative grow overflow-hidden whitespace-nowrap">
                     {name}
 
                     <div
-                      className={`absolute top-0 right-0 w-5 h-full bg-gradient-to-r from-transparent ${selectedConversationId === id ? "to-gray-200" : "to-slate-50"}`}
+                      className={`absolute bottom-0 right-0 top-0 bg-gradient-to-l to-transparent w-8 ${selectedConversationId === id ? "from-[#e5e7eb]" : "from-[#f9f9f9]"} from-0% group-hover:w-20 group-hover:from-[#ececec] group-hover:from-60%`}
                     />
                     <div
                       className={`z-10 absolute top-[-8px] right-0 flex justify-end w-6 ${selectedConversationId === id ? "bg-gray-200" : "bg-gray-100"} invisible group-hover/item:visible`}
