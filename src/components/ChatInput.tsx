@@ -39,7 +39,7 @@ const ChatInput = () => {
     }
   );
   const { ref, ...registerMessageRes } = register("message", {
-    required: "필수",
+    required: "Requirement",
   });
 
   const { model } = useSelectedModelStore();

@@ -41,7 +41,7 @@ export async function groqChat({
     messages: [
       {
         role: "system",
-        content: "You are a helpful AI. 답변은 한글로 줘.",
+        content: "You are a helpful AI. Please answer in the language I asked.",
       },
       ...messages.map((message: Message) => {
         return { role: message.role, content: message.content };
@@ -190,7 +190,7 @@ export async function gptChat({
     messages: [
       {
         role: "system",
-        content: "You are a helpful AI. 답변은 한글로 줘.",
+        content: "You are a helpful AI. Please answer in the language I asked.",
       },
       ...messages.map((message: Message) => {
         return { role: message.role, content: message.content };
@@ -239,7 +239,7 @@ export async function geminiChat({
   setData,
   setAlertInformation,
 }: GeminiChat) {
-  const prompt = `${message}. 답변은 한글로 줘.`;
+  const prompt = `${message}. Please answer in the language I asked.`;
   try {
     const result = await geminiModel.generateContent(prompt);
     const response = await result.response;
