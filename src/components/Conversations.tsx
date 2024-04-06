@@ -112,7 +112,7 @@ const Conversations = ({ data }: ConversationsProps) => {
                           className="h-9 p-1 bg-transparent group/button hover:bg-transparent"
                           onClick={(e) => handleDialogOpen(e, id as number)}
                         >
-                          <span className="sr-only">대화 삭제</span>
+                          <span className="sr-only">Delete conversation</span>
                           <TrashIcon className="w-4 h-4 group-hover/button:text-gray-600" />
                         </Button>
                       </Tooltip>

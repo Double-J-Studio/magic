@@ -38,7 +38,7 @@ const AlertDestructive = () => {
             className="p-2 text-gray-600"
             onClick={handleAlertClose}
           >
-            확인
+            Confirm
           </Button>
         </div>
       </Alert>
