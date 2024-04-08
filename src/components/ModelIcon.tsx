@@ -32,9 +32,7 @@ function ModelIcon({ model, size = 16 }: ModelIconProps) {
       return <Meta.Color size={size} />;
 
     default:
-      return (
-        <UserCircleIcon className="w-6 h-6 text-white bg-green-500 rounded-md" />
-      );
+      return <UserCircleIcon className="text-white bg-green-500 rounded-md" />;
   }
 }
 

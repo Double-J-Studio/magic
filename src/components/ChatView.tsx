@@ -52,9 +52,7 @@ const ChatView = () => {
           return (
             <div key={`message_${i}`} className="flex gap-2 px-4 py-2">
               <div
-                className={`flex justify-center w-6 h-6 ${
-                  message.role === "user" ? "bg-slate-200" : "bg-green-500"
-                } rounded-full overflow-hidden`}
+                className={`flex justify-center w-6 h-6 bg-slate-200 rounded-full overflow-hidden`}
               >
                 {message.role === "user" && (
                   <UserCircleIcon className="w-6 h-6 text-white" />
