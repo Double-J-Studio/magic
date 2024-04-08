@@ -13,7 +13,7 @@ import {
 
 import useApiKeyStore from "@/state/useApiKeyStore";
 
-const ApiKeySettingPage = () => {
+const ApiKeySetting = () => {
   const { setApiKeys } = useApiKeyStore();
 
   const openaiApiKey = useApiKeyStore((state) => state.getOpenaiApiKey());
@@ -27,8 +27,8 @@ const ApiKeySettingPage = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-[80%] h-[50%] shadow-lg">
+    <div className="flex items-center justify-center min-w-full h-full">
+      <Card className="w-full max-w-[80%] h-[80%] shadow-lg">
         <CardHeader>
           <CardTitle>API Key Setting</CardTitle>
           <CardDescription>
@@ -47,4 +47,4 @@ const ApiKeySettingPage = () => {
   );
 };
 
-export default ApiKeySettingPage;
+export default ApiKeySetting;

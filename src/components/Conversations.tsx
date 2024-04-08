@@ -10,7 +10,6 @@ import Tooltip from "@/components/Tooltip";
 import useConversationStore, {
   Conversation,
 } from "@/state/useConversationStore";
-import useDialogStore from "@/state/useDialogStore";
 
 interface ConversationsProps {
   data: { [key: string]: Conversation[] };
@@ -22,8 +21,8 @@ const Conversations = ({ data }: ConversationsProps) => {
     setSelectedConversationId,
     initSelectedConversationId,
     setDeleteButtonId,
+    open,
   } = useConversationStore();
-  const { open } = useDialogStore();
 
   const dataKeys = Object.keys(data).map((key) => key);
   const sortedDatakeys: string[] = dataKeys
