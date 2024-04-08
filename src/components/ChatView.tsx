@@ -1,16 +1,14 @@
-import { useEffect } from "react";
-
 import { ArrowDownIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { capitalizeFirstLetter } from "@/lib/utils";
-import { readImage } from "@/utils/tauri/file";
 
 import BingMessageComponent from "@/components/BingMessageComponent";
 import SkeletonCard from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
 import MarkdownRender from "@/components/MarkdownRender";
+import ModelIcon from "@/components/ModelIcon";
 
 import { Message } from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
@@ -58,7 +56,12 @@ const ChatView = () => {
                   message.role === "user" ? "bg-slate-200" : "bg-green-500"
                 } rounded-full overflow-hidden`}
               >
-                <UserCircleIcon className="w-6 h-6 text-white" />
+                {message.role === "user" && (
+                  <UserCircleIcon className="w-6 h-6 text-white" />
+                )}
+                {message.role !== "user" && (
+                  <ModelIcon model={message.model} size={24} />
+                )}
               </div>
 
               <div className="flex flex-col gap-1 w-[calc(100%-32px)]">
