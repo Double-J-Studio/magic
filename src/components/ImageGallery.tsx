@@ -4,12 +4,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import EmptyImage from "@/assets/no-image-yet.png";
 
-const ImageGalleryPage = () => {
+const ImageGallery = () => {
   const { images, isLoading } = useGetImages();
   const hasImages = images && images.length > 0;
 
   return (
-    <div className="w-full min-h-screen p-5">
+    <div className="w-full h-full p-5">
       {hasImages || isLoading ? (
         <ul className="grid grid-cols-4 gap-2">
           {hasImages &&
@@ -29,4 +29,4 @@ const ImageGalleryPage = () => {
   );
 };
 
-export default ImageGalleryPage;
+export default ImageGallery;

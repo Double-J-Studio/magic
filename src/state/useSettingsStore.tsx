@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
-interface UseDialogStoreProps {
+interface UseSettingsStoreProps {
   isOpen: boolean;
   open: () => void;
   close: () => void;
   toggle: () => void;
 }
 
-const useDialogStore = create<UseDialogStoreProps>()((set) => ({
+const useSettingsStore = create<UseSettingsStoreProps>()((set) => ({
   isOpen: false,
 
   open: () => set(() => ({ isOpen: true })),
@@ -15,4 +15,4 @@ const useDialogStore = create<UseDialogStoreProps>()((set) => ({
   toggle: () => set((state) => ({ isOpen: !state.isOpen })),
 }));
 
-export default useDialogStore;
+export default useSettingsStore;

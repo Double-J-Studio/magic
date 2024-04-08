@@ -12,11 +12,10 @@ import {
 } from "@/components/ui/dialog";
 
 import useConversationStore from "@/state/useConversationStore";
-import useDialogStore from "@/state/useDialogStore";
 
 const ConversationsDialog = () => {
-  const { isOpen, close, toggle } = useDialogStore();
-  const { clickedDeleteButtonId } = useConversationStore();
+  const { clickedDeleteButtonId, isOpen, close, toggle } =
+    useConversationStore();
 
   const { mutate: deleteConversation } = useDeleteConversation();
 

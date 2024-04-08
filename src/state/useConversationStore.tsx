@@ -13,12 +13,17 @@ interface UseConversationStoreProps {
   lastInsertId: number;
   clickedDeleteButtonId: number;
   shouldRefetch: boolean;
+  isOpen: boolean;
+
   setConversations: (conversations: Conversation[]) => void;
   setSelectedConversationId: (conversationId: number) => void;
   initSelectedConversationId: () => void;
   setLastInsertId: (id: number) => void;
   setDeleteButtonId: (id: number) => void;
   refetch: () => void;
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
 }
 
 const useConversationStore = create<UseConversationStoreProps>()((set) => ({
@@ -27,6 +32,7 @@ const useConversationStore = create<UseConversationStoreProps>()((set) => ({
   lastInsertId: 0,
   clickedDeleteButtonId: 0,
   shouldRefetch: false,
+  isOpen: false,
 
   setConversations: (conversations) => {
     set((state) => ({
@@ -64,6 +70,9 @@ const useConversationStore = create<UseConversationStoreProps>()((set) => ({
       shouldRefetch: !state.shouldRefetch,
     }));
   },
+  open: () => set(() => ({ isOpen: true })),
+  close: () => set(() => ({ isOpen: false })),
+  toggle: () => set((state) => ({ isOpen: !state.isOpen })),
 }));
 
 export default useConversationStore;

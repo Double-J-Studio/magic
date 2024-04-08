@@ -1,16 +1,20 @@
-import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-import { Cog6ToothIcon } from "@heroicons/react/20/solid";
+import { Cog6ToothIcon, UserCircleIcon } from "@heroicons/react/20/solid";
 
 import { useGetConversations } from "@/hooks/db/useGetConversations";
 
 import { Button } from "@/components/ui/button";
 import Conversations from "@/components/Conversations";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import SettingsDialog from "@/components/SettingsDialog";
 
 import { Conversation } from "@/state/useConversationStore";
 import useSideBarStore from "@/state/useSidebarStore";
-
-import { ROUTES } from "@/constant";
+import useSettingsStore from "@/state/useSettingsStore";
 
 const sidebarStyles = {
   base: "relative w-[260px] min-h-screen bg-[#fafafa] transition-all duration-500 transform",
@@ -19,9 +23,8 @@ const sidebarStyles = {
 };
 
 const Sidebar = () => {
-  const navigate = useNavigate();
-
   const { isOpen } = useSideBarStore();
+  const { open } = useSettingsStore();
 
   const { conversations, isLoading } = useGetConversations();
 
@@ -83,8 +86,8 @@ const Sidebar = () => {
     }, {});
   };
 
-  const handleNavigationBtnClick = () => {
-    navigate(ROUTES.API_KEY_SETTING);
+  const handleSettingsBtnClick = () => {
+    open();
   };
 
   const groupedByConversations = groupByConversations(conversations);
@@ -106,22 +109,41 @@ const Sidebar = () => {
         <div className="flex flex-col w-full h-full">
           <Conversations data={processData(groupedByConversations)} />
         </div>
-        <div className="w-full pr-3">
-          <Button
-            size="sm"
-            variant="ghost"
-            className="flex justify-start items-center gap-1 w-full"
-            onClick={handleNavigationBtnClick}
-          >
-            <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-500 font-semibold">Setting</span>
-          </Button>
+        <div className="flex w-full pr-3">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="flex justify-start items-center gap-1 w-full px-2"
+              >
+                <div
+                  className={`flex justify-center w-6 h-6 bg-slate-200 rounded-full overflow-hidden`}
+                >
+                  <UserCircleIcon className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-gray-500 font-semibold">User</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="min-w-full max-w-[236px] p-1.5">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="flex justify-start items-center gap-1 w-full"
+                onClick={handleSettingsBtnClick}
+              >
+                <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-500 font-semibold">Settings</span>
+              </Button>
+            </PopoverContent>
+          </Popover>
         </div>
       </nav>
 
       <div
         className={`absolute right-0 bottom-0 w-6 min-h-screen bg-gradient-to-r from-transparent to-[#fafafa]`}
       />
+      <SettingsDialog />
     </aside>
   );
 };
