@@ -50,9 +50,9 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-w-full h-full">
-      <Card className="w-full max-w-[80%] h-[80%] p-3 shadow-lg">
-        <CardContent className="space-y-6">
+    <div className="flex items-center justify-center min-w-full py-10 overflow-auto">
+      <Card className="w-full max-w-[80%] h-[80%] p-10 shadow-lg">
+        <CardContent className="flex flex-col gap-3 p-0">
           <div className="relative flex items-center justify-center">
             <label htmlFor="fileUpload" className="sr-only">
               Image File Upload
