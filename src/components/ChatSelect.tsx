@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ModelIcon from "@/components/ModelIcon";
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 
@@ -21,7 +22,7 @@ const ChatSelect = () => {
 
   return (
     <Select onValueChange={handleValueChange} defaultValue={model}>
-      <SelectTrigger className="w-[130px] border-0 text-lg font-bold hover:bg-accent hover:text-accent-foreground focus-visible:ring-transparent focus:ring-transparent">
+      <SelectTrigger className="w-[150px] border-0 text-lg font-bold hover:bg-accent hover:text-accent-foreground focus-visible:ring-transparent focus:ring-transparent">
         <SelectValue
           placeholder={model === "gpt-3.5-turbo" ? "GPT-3.5" : "GPT-4.0"}
         />
@@ -38,7 +39,10 @@ const ChatSelect = () => {
                     value={model.model}
                     className="pl-10 cursor-pointer"
                   >
-                    {model.name}
+                    <div className="flex items-center gap-x-2">
+                      <ModelIcon model={model.model} size={16} />
+                      {model.name}
+                    </div>
                   </SelectItem>
                 );
               })}
