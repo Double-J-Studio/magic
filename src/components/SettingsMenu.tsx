@@ -1,26 +1,12 @@
-import { useEffect } from "react";
+import useSettingsStore from "@/state/useSettingsStore";
 
-import { useLocation } from "react-router-dom";
-
-import useSettingMenuStore from "@/state/useSettingMenuStore";
-
-const MENU_LIST = [
-  { id: "1", value: "api-key-setting", name: "API Key Setting" },
-  { id: "2", value: "image-gallery", name: "Image Gallery" },
-];
+import { MENU_LIST } from "@/constant";
 
 const SettingsMenu = () => {
-  const { pathname } = useLocation();
+  const { selectedMenuItem, setSelectedMenuItem } = useSettingsStore();
 
-  const { selectedMenuItem, setSelectedMenuItem } = useSettingMenuStore();
-
-  useEffect(() => {
-    setSelectedMenuItem(pathname);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
-
-  const handleMenuClick = (path: string) => {
-    setSelectedMenuItem(path);
+  const handleMenuClick = (value: string) => {
+    setSelectedMenuItem(value);
   };
 
   return (

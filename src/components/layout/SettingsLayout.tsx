@@ -1,11 +1,12 @@
 import SettingsMenu from "@/components/SettingsMenu";
 import ApiKeySetting from "@/components/ApiKeySetting";
 import ImageGallery from "@/components/ImageGallery";
+import Profile from "@/components/Profile";
 
-import useSettingMenuStore from "@/state/useSettingMenuStore";
+import useSettingsStore from "@/state/useSettingsStore";
 
 const SettingsLayout = () => {
-  const { selectedMenuItem } = useSettingMenuStore();
+  const { selectedMenuItem } = useSettingsStore();
 
   return (
     <div className="flex min-w-full h-full">
@@ -14,7 +15,7 @@ const SettingsLayout = () => {
       <div className="w-full sm:max-w-[calc(100%-160px)] lg:max-w-[calc(100%-256px)]">
         {selectedMenuItem === "api-key-setting" && <ApiKeySetting />}
         {selectedMenuItem === "image-gallery" && <ImageGallery />}
-        {selectedMenuItem === "user-information" && <></>}
+        {selectedMenuItem === "profile" && <Profile />}
       </div>
     </div>
   );
