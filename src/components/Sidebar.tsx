@@ -1,16 +1,16 @@
+import { useEffect, useState } from "react";
+
 import dayjs from "dayjs";
-import { Cog6ToothIcon, UserCircleIcon } from "@heroicons/react/20/solid";
+import { UserCircleIcon } from "@heroicons/react/20/solid";
 
 import { useGetConversations } from "@/hooks/db/useGetConversations";
+import { kv } from "@/utils/tauri/kv";
 
 import { Button } from "@/components/ui/button";
 import Conversations from "@/components/Conversations";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import SettingsDialog from "@/components/SettingsDialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { Conversation } from "@/state/useConversationStore";
 import useSideBarStore from "@/state/useSidebarStore";
@@ -23,10 +23,34 @@ const sidebarStyles = {
 };
 
 const Sidebar = () => {
+  const [loading, setLoading] = useState(false);
   const { isOpen } = useSideBarStore();
-  const { open } = useSettingsStore();
+  const { profileImageUrl, userName, open, setUserName, setProfileImageUrl } =
+    useSettingsStore();
 
   const { conversations, isLoading } = useGetConversations();
+
+  useEffect(() => {
+    async function getProfileImageAndUserName() {
+      setLoading(true);
+      try {
+        const profileImage = await kv.get<string>("profileImage");
+        const userName = await kv.get<string>("userName");
+
+        setProfileImageUrl(profileImage);
+        if (userName) {
+          setUserName(userName);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getProfileImageAndUserName();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -110,33 +134,32 @@ const Sidebar = () => {
           <Conversations data={processData(groupedByConversations)} />
         </div>
         <div className="flex w-full pr-3">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="flex justify-start items-center gap-1 w-full px-2"
+          {loading ? (
+            <Skeleton className="w-full h-full rounded-md" />
+          ) : (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="flex justify-start items-center gap-1 w-full px-2"
+              onClick={handleSettingsBtnClick}
+            >
+              <div
+                className={`flex justify-center w-6 h-6 bg-slate-200 rounded-full overflow-hidden`}
               >
-                <div
-                  className={`flex justify-center w-6 h-6 bg-slate-200 rounded-full overflow-hidden`}
-                >
+                {profileImageUrl ? (
+                  <Avatar>
+                    <AvatarImage src={profileImageUrl} />
+                    <AvatarFallback>
+                      <Skeleton className="w-full h-full rounded-full" />
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
                   <UserCircleIcon className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-gray-500 font-semibold">User</span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="min-w-full max-w-[236px] p-1.5">
-              <Button
-                size="sm"
-                variant="ghost"
-                className="flex justify-start items-center gap-1 w-full"
-                onClick={handleSettingsBtnClick}
-              >
-                <Cog6ToothIcon className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-500 font-semibold">Settings</span>
-              </Button>
-            </PopoverContent>
-          </Popover>
+                )}
+              </div>
+              <span className="text-gray-500 font-semibold">{userName}</span>
+            </Button>
+          )}
         </div>
       </nav>
 

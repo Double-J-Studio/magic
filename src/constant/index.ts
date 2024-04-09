@@ -4,6 +4,12 @@ export const ROUTES = {
   IMAGE_GALLERY: "/setting/image-gallery",
 };
 
+export const MENU_LIST = [
+  { id: "1", value: "profile", name: "Profile" },
+  { id: "2", value: "api-key-setting", name: "API Key Setting" },
+  { id: "3", value: "image-gallery", name: "Image Gallery" },
+];
+
 export const MODELS = {
   "GPT-3.5": "gpt-3.5-turbo",
   "GPT-4": "gpt-4-turbo-preview",
