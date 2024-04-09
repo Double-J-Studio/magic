@@ -10,7 +10,7 @@ const SettingsMenu = () => {
   };
 
   return (
-    <nav className="flex flex-col flex-1 justify-between w-[30%] sm:min-w-40 lg:max-w-64 min-h-full p-3 overflow-y-auto shadow-lg">
+    <nav className="flex flex-col flex-1 justify-between w-[30%] sm:min-w-40 lg:max-w-64 min-h-full p-3 overflow-y-auto">
       <ul className="flex flex-col gap-1 h-full">
         {MENU_LIST.map((item) => {
           return (

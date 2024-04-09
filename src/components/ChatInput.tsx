@@ -9,13 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { checkApiKeys } from "@/utils/api-key-check";
 import { db } from "@/utils/tauri/db";
 import { useGetConversations } from "@/hooks/db/useGetConversations";
-import {
-  bingChat,
-  geminiChat,
-  gptChat,
-  gptImageChat,
-  groqChat,
-} from "@/utils/chat";
+import { geminiChat, gptChat, gptImageChat, groqChat } from "@/utils/chat";
 import { useGetImages } from "@/hooks/db/useGetImages";
 
 import { Button } from "@/components/ui/button";
@@ -48,16 +42,14 @@ const ChatInput = () => {
     useConversationStore();
   const { open: alertOpen, setInformation } = useAlertStore();
 
-  const openaiApiKey = useApiKeyStore((state) => state.getOpenaiApiKey());
-  const bingApiKey = useApiKeyStore((state) => state.getBingApiKey());
-  const groqApiKey = useApiKeyStore((state) => state.getGroqApiKey());
-  const geminiApiKey = useApiKeyStore((state) => state.getGeminiApiKey());
+  const openaiApiKey = useApiKeyStore((state) => state.getApiKey("openai"));
+  const groqApiKey = useApiKeyStore((state) => state.getApiKey("groq"));
+  const geminiApiKey = useApiKeyStore((state) => state.getApiKey("gemini"));
   const geminiAI = new GoogleGenerativeAI(geminiApiKey);
 
   const IS_GPT_MODEL = model === MODELS["GPT-3.5"] || model === MODELS["GPT-4"];
   const IS_DALLE_MODEL = model === MODELS["DALL-E-3"];
   const IS_OPENAI_MODEL = IS_GPT_MODEL || IS_DALLE_MODEL;
-  const IS_BING_MODEL = model === MODELS.BING;
   const IS_GROQ_MODEL = model === MODELS.LLAMA2 || model === MODELS.MIXTRAL;
   const IS_GEMINI_MODEL = model === MODELS.GEMINI;
 
@@ -116,20 +108,15 @@ const ChatInput = () => {
         setAlertInformation({ service: "OpenAI" });
         return;
       }
-    } else if (IS_BING_MODEL) {
-      if (bingApiKey?.length < 1) {
-        setAlertInformation({ service: "Bing" });
+    } else if (IS_GROQ_MODEL) {
+      if (groqApiKey?.length < 1) {
+        setAlertInformation({ service: "Groq" });
         return;
-      } else if (IS_GROQ_MODEL) {
-        if (groqApiKey?.length < 1) {
-          setAlertInformation({ service: "Groq" });
-          return;
-        }
-      } else if (IS_GEMINI_MODEL) {
-        if (geminiApiKey?.length < 1) {
-          setAlertInformation({ service: "Gemini" });
-          return;
-        }
+      }
+    } else if (IS_GEMINI_MODEL) {
+      if (geminiApiKey?.length < 1) {
+        setAlertInformation({ service: "Gemini" });
+        return;
       }
     }
 
@@ -178,28 +165,6 @@ const ChatInput = () => {
               const clone = JSON.parse(JSON.stringify(prev));
               clone[clone.length - 1].model = model;
               clone[clone.length - 1].content += message;
-
-              return clone;
-            }
-          );
-        },
-        setAlertInformation: setAlertInformation,
-      });
-    }
-
-    if (IS_BING_MODEL) {
-      bingChat({
-        apiKey: bingApiKey,
-        model: model,
-        message: data.message,
-        conversationId: conversationId,
-        setData: (extractedList: any) => {
-          queryClient.setQueryData(
-            ["messages", conversationId],
-            (prev: Message[]) => {
-              const clone = JSON.parse(JSON.stringify(prev));
-              clone[clone.length - 1].model = model;
-              clone[clone.length - 1].content += JSON.stringify(extractedList);
 
               return clone;
             }

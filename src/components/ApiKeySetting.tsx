@@ -16,10 +16,9 @@ import useApiKeyStore from "@/state/useApiKeyStore";
 const ApiKeySetting = () => {
   const { setApiKeys } = useApiKeyStore();
 
-  const openaiApiKey = useApiKeyStore((state) => state.getOpenaiApiKey());
-  const bingApiKey = useApiKeyStore((state) => state.getBingApiKey());
-  const groqApiKey = useApiKeyStore((state) => state.getGroqApiKey());
-  const geminiApiKey = useApiKeyStore((state) => state.getGeminiApiKey());
+  const openaiApiKey = useApiKeyStore((state) => state.getApiKey("openai"));
+  const groqApiKey = useApiKeyStore((state) => state.getApiKey("groq"));
+  const geminiApiKey = useApiKeyStore((state) => state.getApiKey("gemini"));
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
@@ -27,8 +26,8 @@ const ApiKeySetting = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center min-w-full h-full">
-      <Card className="w-full max-w-[80%] h-[80%] shadow-lg">
+    <div className="flex items-center justify-center min-w-full py-10 overflow-auto">
+      <Card className="w-full max-w-[80%] shadow-lg">
         <CardHeader>
           <CardTitle>API Key Setting</CardTitle>
           <CardDescription>
@@ -38,7 +37,6 @@ const ApiKeySetting = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <ApiKeyInput service="openai" title="OpenAI" value={openaiApiKey} />
-          <ApiKeyInput service="bing" title="Bing" value={bingApiKey} />
           <ApiKeyInput service="groq" title="Groq" value={groqApiKey} />
           <ApiKeyInput service="gemini" title="Gemini" value={geminiApiKey} />
         </CardContent>

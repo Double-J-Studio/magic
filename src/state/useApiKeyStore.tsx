@@ -7,10 +7,7 @@ export interface ApiKey {
 
 interface UseApiKeyStoreProps {
   apiKeys: ApiKey[];
-  getOpenaiApiKey: () => string;
-  getBingApiKey: () => string;
-  getGroqApiKey: () => string;
-  getGeminiApiKey: () => string;
+  getApiKey: (service: string) => string;
   setApiKeys: (apiKeys: ApiKey[]) => void;
 }
 
@@ -18,10 +15,6 @@ const useApiKeyStore = create<UseApiKeyStoreProps>()((set, get) => ({
   apiKeys: [
     {
       service: "openai",
-      key: "",
-    },
-    {
-      service: "bing",
       key: "",
     },
     {
@@ -34,17 +27,9 @@ const useApiKeyStore = create<UseApiKeyStoreProps>()((set, get) => ({
     },
   ],
 
-  getOpenaiApiKey: () => {
-    return get().apiKeys[0].key;
-  },
-  getBingApiKey: () => {
-    return get().apiKeys[1].key;
-  },
-  getGroqApiKey: () => {
-    return get().apiKeys[2].key;
-  },
-  getGeminiApiKey: () => {
-    return get().apiKeys[3].key;
+  getApiKey: (service: string) => {
+    return get().apiKeys.filter((apiKey) => apiKey.service === service)?.[0]
+      ?.key;
   },
   setApiKeys: (apiKeys) => {
     set((state) => ({ ...state, apiKeys: apiKeys }));
