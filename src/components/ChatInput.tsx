@@ -6,7 +6,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { checkApiKeys } from "@/utils/api-key-check";
+import { checkApiKeys, isCheckModel } from "@/utils/check";
 import { db } from "@/utils/tauri/db";
 import { useGetConversations } from "@/hooks/db/useGetConversations";
 import { geminiChat, gptChat, gptImageChat, groqChat } from "@/utils/chat";
@@ -20,8 +20,6 @@ import { Message } from "@/state/useMessageStore";
 import useConversationStore from "@/state/useConversationStore";
 import useApiKeyStore from "@/state/useApiKeyStore";
 import useAlertStore from "@/state/useAlertStore";
-
-import { MODELS, ROUTES } from "@/constant";
 
 const ChatInput = () => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -46,12 +44,6 @@ const ChatInput = () => {
   const groqApiKey = useApiKeyStore((state) => state.getApiKey("groq"));
   const geminiApiKey = useApiKeyStore((state) => state.getApiKey("gemini"));
   const geminiAI = new GoogleGenerativeAI(geminiApiKey);
-
-  const IS_GPT_MODEL = model === MODELS["GPT-3.5"] || model === MODELS["GPT-4"];
-  const IS_DALLE_MODEL = model === MODELS["DALL-E-3"];
-  const IS_OPENAI_MODEL = IS_GPT_MODEL || IS_DALLE_MODEL;
-  const IS_GROQ_MODEL = model === MODELS.LLAMA2 || model === MODELS.MIXTRAL;
-  const IS_GEMINI_MODEL = model === MODELS.GEMINI;
 
   const queryClient = useQueryClient();
   const { refetch } = useGetConversations();
@@ -94,7 +86,6 @@ const ChatInput = () => {
 
     if (service) {
       setInformation({
-        pathname: ROUTES.API_KEY_SETTING,
         description: `${service} API key is not set. Please set the API key first.`,
       });
     }
@@ -103,17 +94,17 @@ const ChatInput = () => {
   }
 
   const handleFormSubmit = async (data: { message: string }) => {
-    if (IS_OPENAI_MODEL) {
+    if (isCheckModel("openai", model)) {
       if (openaiApiKey?.length < 1) {
         setAlertInformation({ service: "OpenAI" });
         return;
       }
-    } else if (IS_GROQ_MODEL) {
+    } else if (isCheckModel("groq", model)) {
       if (groqApiKey?.length < 1) {
         setAlertInformation({ service: "Groq" });
         return;
       }
-    } else if (IS_GEMINI_MODEL) {
+    } else if (isCheckModel("gemini", model)) {
       if (geminiApiKey?.length < 1) {
         setAlertInformation({ service: "Gemini" });
         return;
@@ -151,7 +142,7 @@ const ChatInput = () => {
       setSelectedConversationId(conversationId);
     }
 
-    if (IS_GROQ_MODEL) {
+    if (isCheckModel("groq", model)) {
       groqChat({
         apiKey: groqApiKey,
         model: model,
@@ -174,7 +165,7 @@ const ChatInput = () => {
       });
     }
 
-    if (IS_DALLE_MODEL) {
+    if (isCheckModel("dalle", model)) {
       clone[clone.length - 1].type = "image";
       clone[clone.length - 1].isLoading = true;
 
@@ -201,7 +192,7 @@ const ChatInput = () => {
       await refetchImages();
     }
 
-    if (IS_GPT_MODEL) {
+    if (isCheckModel("gpt", model)) {
       gptChat({
         apiKey: openaiApiKey,
         model: model,
@@ -224,7 +215,7 @@ const ChatInput = () => {
       });
     }
 
-    if (IS_GEMINI_MODEL) {
+    if (isCheckModel("gemini", model)) {
       const geminiModel = geminiAI.getGenerativeModel({ model: model });
       geminiChat({
         geminiModel: geminiModel,

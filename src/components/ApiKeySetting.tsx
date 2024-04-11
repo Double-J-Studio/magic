@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { checkApiKeys } from "@/utils/api-key-check";
+import { checkApiKeys } from "@/utils/check";
 
 import ApiKeyInput from "@/components/ApiKeyInput";
 import {
