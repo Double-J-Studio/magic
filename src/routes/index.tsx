@@ -9,8 +9,8 @@ const Router = () => {
     <Routes>
       <Route path="/" element={<DefaultLayout />}>
         <Route index element={<MainPage />} />
-        <Route path="*" element={<PageNotFound />} />
       </Route>
+      <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
