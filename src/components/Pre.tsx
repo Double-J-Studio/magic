@@ -24,7 +24,7 @@ const Pre = ({ pre }: PreProps) => {
   ) as string;
 
   return (
-    <div className="relative overflow-x-hidden">
+    <div className="relative md:max-w-[600px] lg:max-w-full overflow-x-hidden">
       <Button
         variant="ghost"
         className="z-40 absolute top-0.5 right-2 w-8 h-8 p-1 text-zinc-50 hover:bg-zinc-500"
