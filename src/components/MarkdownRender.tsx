@@ -28,7 +28,7 @@ interface MarkdownRenderProps {
 const MarkdownRender = ({ mdString }: MarkdownRenderProps) => {
   return (
     <Markdown
-      className="whitespace-pre-wrap"
+      className="w-full whitespace-pre-wrap"
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeRaw]}
       components={{
@@ -37,7 +37,7 @@ const MarkdownRender = ({ mdString }: MarkdownRenderProps) => {
           const match = /language-(\w+)/.exec(className || "");
 
           return match ? (
-            <div className="relative bg-black rounded-md">
+            <div className="relative w-full md:max-w-[600px] lg:max-w-full bg-black rounded-md">
               <div className="h-9 py-1 px-3 text-gray-100"></div>
               <SyntaxHighlighter
                 {...rest}
