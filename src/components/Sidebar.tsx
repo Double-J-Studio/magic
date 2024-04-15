@@ -55,7 +55,7 @@ const Sidebar = () => {
   }, [userName]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Skeleton className="min-w-[260px] min-h-screen" />;
   }
 
   const groupByConversations = (data: any) => {
