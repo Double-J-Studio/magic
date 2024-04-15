@@ -1,7 +1,39 @@
-# Tauri + React + Typescript
+# magic
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+This is a Chat desktop that allows you to use multiple LLM models by registering your Api Key (e.g. `OpenAI Api Key`).
 
-## Recommended IDE Setup
+## Example
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+### Chat UI
+![Chat Example](./assets/chat-example.png)
+
+### Chat Models
+![Chat Models](./assets/chat-models.png)
+
+## Available Models
+
+- OpenAI
+  - GPT-3.5
+  - GPT-4.0
+  - DALL·E 3
+- Groq
+  - LLama2
+  - Mixtral
+- Google
+  - Gemini
+
+## Install
+
+Download the installation file appropriate for your OS from the GitHub Release tab.
+
+## For Developer
+
+### Tech Stack
+
+[Tauri](https://tauri.app/)+[React](https://react.dev/)+[SQLite](https://www.sqlite.org/)
+
+### Start
+
+```sh
+pnpm tauri dev
+```
