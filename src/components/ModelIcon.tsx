@@ -1,4 +1,4 @@
-import { OpenAI, Dalle, Mistral, Gemini, Bing, Meta } from "@lobehub/icons";
+import { OpenAI, Dalle, Mistral, Gemini, Meta } from "@lobehub/icons";
 import { UserCircleIcon } from "@heroicons/react/20/solid";
 
 import { MODELS } from "@/constant";
@@ -24,9 +24,6 @@ function ModelIcon({ model, size = 16 }: ModelIconProps) {
 
     case MODELS.GEMINI:
       return <Gemini.Avatar size={size} />;
-
-    case MODELS.BING:
-      return <Bing.Color size={size} />;
 
     case MODELS.LLAMA2:
       return <Meta.Color size={size} />;
