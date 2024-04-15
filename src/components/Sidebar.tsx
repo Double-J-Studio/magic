@@ -40,7 +40,9 @@ const Sidebar = () => {
         setProfileImageUrl(profileImage);
         if (userName) {
           setUserName(userName);
+          return;
         }
+        setUserName("User");
       } catch (err) {
         console.error(err);
       } finally {
@@ -50,10 +52,10 @@ const Sidebar = () => {
 
     getProfileImageAndUserName();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userName]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Skeleton className="min-w-[260px] min-h-screen" />;
   }
 
   const groupByConversations = (data: any) => {
@@ -134,32 +136,34 @@ const Sidebar = () => {
           <Conversations data={processData(groupedByConversations)} />
         </div>
         <div className="flex w-full pr-3">
-          {loading ? (
-            <Skeleton className="w-full h-full rounded-md" />
-          ) : (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="flex justify-start items-center gap-1 w-full px-2"
-              onClick={handleSettingsBtnClick}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="flex justify-start items-center gap-x-2 w-full px-2"
+            onClick={handleSettingsBtnClick}
+          >
+            <div
+              className={`flex justify-center w-8 h-8 bg-slate-200 rounded-full overflow-hidden`}
             >
-              <div
-                className={`flex justify-center w-6 h-6 bg-slate-200 rounded-full overflow-hidden`}
-              >
-                {profileImageUrl ? (
-                  <Avatar>
-                    <AvatarImage src={profileImageUrl} />
-                    <AvatarFallback>
-                      <Skeleton className="w-full h-full rounded-full" />
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <UserCircleIcon className="w-6 h-6 text-white" />
-                )}
-              </div>
-              <span className="text-gray-500 font-semibold">{userName}</span>
-            </Button>
-          )}
+              {profileImageUrl ? (
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={profileImageUrl} alt="Profile Image" />
+                  <AvatarFallback>
+                    <Skeleton className="w-full h-full rounded-full" />
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <UserCircleIcon className="w-full h-full text-white" />
+              )}
+            </div>
+            {!loading ? (
+              <span className="w-[calc(100%-32px)] text-left text-gray-500 font-semibold truncate">
+                {userName}
+              </span>
+            ) : (
+              <Skeleton className="w-[calc(100%-32px)] h-5" />
+            )}
+          </Button>
         </div>
       </nav>
 

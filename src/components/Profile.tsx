@@ -2,12 +2,15 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import {
   CameraIcon,
+  CheckIcon,
   PencilIcon,
   UserCircleIcon,
 } from "@heroicons/react/20/solid";
+import { useForm } from "react-hook-form";
 
 import { kv } from "@/utils/tauri/kv";
 import { blobToBase64 } from "@/utils/convert";
+import { useToast } from "@/hooks/useToast";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,20 +20,33 @@ import Tooltip from "@/components/Tooltip";
 
 import useSettingsStore from "@/state/useSettingsStore";
 
+interface FormData {
+  name: string;
+}
+
 const Profile = () => {
   const [isReadOnly, setIsReadOnly] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const { userName, profileImageUrl, setUserName, setProfileImageUrl } =
     useSettingsStore();
+  const { register, handleSubmit, setValue, setFocus } = useForm<FormData>({
+    defaultValues: {
+      name: "",
+    },
+  });
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (!isReadOnly && nameInputRef.current) {
-      console.log("");
+    setValue("name", userName);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      nameInputRef.current.focus();
+  useEffect(() => {
+    if (!isReadOnly) {
+      setFocus("name");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReadOnly]);
 
   const handleMyPhotoClick = () => {
@@ -46,6 +62,30 @@ const Profile = () => {
       await kv.set("profileImage", base64);
 
       setProfileImageUrl(base64 as string);
+    }
+  };
+
+  const handleFormSubmit = async (data: FormData, e: any) => {
+    setIsReadOnly((prev) => !prev);
+
+    if (!(e.nativeEvent instanceof SubmitEvent)) return;
+    const submitter = e?.nativeEvent?.submitter as HTMLButtonElement;
+    const buttonName = submitter.name;
+
+    if (buttonName === "save") {
+      setUserName(data.name);
+      await kv.set("userName", data.name);
+
+      toast({
+        description: (
+          <div className="flex items-center gap-1">
+            <CheckIcon className="w-4 h-4 text-green-700" />
+            <p>Name updated successfully!</p>
+          </div>
+        ),
+        className: "font-semibold",
+        duration: 2000,
+      });
     }
   };
 
@@ -95,7 +135,10 @@ const Profile = () => {
           </div>
 
           <div className="flex items-center justify-center gap-1">
-            <div className="relative">
+            <form
+              className="relative"
+              onSubmit={handleSubmit((data, e) => handleFormSubmit(data, e))}
+            >
               <Label htmlFor="userName" className="sr-only">
                 Name
               </Label>
@@ -104,24 +147,14 @@ const Profile = () => {
                 className={`w-52 px-11 text-center focus-visible:ring-transparent ${isReadOnly ? "border-0" : ""}`}
                 placeholder="Name"
                 readOnly={isReadOnly}
-                value={userName || ""}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setUserName(e.currentTarget.value)
-                }
-                ref={nameInputRef}
+                {...register("name")}
               />
               <Tooltip side="top" description={isReadOnly ? "Modify" : "Save"}>
                 <Button
-                  type="button"
+                  type="submit"
                   variant="ghost"
                   className="absolute top-0 right-0 group/button hover:bg-transparent "
-                  onClick={async () => {
-                    setIsReadOnly((prev) => !prev);
-
-                    if (!isReadOnly) {
-                      await kv.set("userName", userName);
-                    }
-                  }}
+                  name={isReadOnly ? "modify" : "save"}
                 >
                   <span className="sr-only">
                     {isReadOnly ? "Modify" : "Save"}
@@ -129,7 +162,7 @@ const Profile = () => {
                   <PencilIcon className="w-3 h-3 group-hover/button:text-gray-600" />
                 </Button>
               </Tooltip>
-            </div>
+            </form>
           </div>
         </CardContent>
       </Card>

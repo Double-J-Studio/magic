@@ -2,13 +2,13 @@ import { create } from "zustand";
 
 interface UseSettingsStoreProps {
   isOpen: boolean;
-  userName: string | null;
+  userName: string;
   profileImageUrl: string | null;
   selectedMenuItem: string;
   open: () => void;
   close: () => void;
   toggle: () => void;
-  setUserName: (name: string | null) => void;
+  setUserName: (name: string) => void;
   setProfileImageUrl: (imageUrl: string | null) => void;
   setSelectedMenuItem: (menuItem: string) => void;
 }
