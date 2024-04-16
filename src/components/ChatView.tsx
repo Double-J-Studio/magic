@@ -58,8 +58,8 @@ const ChatView = () => {
                 className={`flex justify-center w-6 h-6 bg-slate-200 rounded-full overflow-hidden`}
               >
                 {message.role === "user" && profileImageUrl ? (
-                  <Avatar>
-                    <AvatarImage src={profileImageUrl} />
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src={profileImageUrl} alt="Profile Image" />
                     <AvatarFallback>
                       <Skeleton className="w-full h-full rounded-full" />
                     </AvatarFallback>

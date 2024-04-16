@@ -50,6 +50,7 @@ const MainPage = () => {
             variant="ghost"
             className="px-1 py-3 hover:bg-transparent"
             onClick={() => toggle()}
+            aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
           >
             {isOpen ? (
               <ChevronLeftIcon className="w-5 h-5" />

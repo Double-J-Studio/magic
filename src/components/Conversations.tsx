@@ -1,4 +1,4 @@
-import { MouseEvent } from "react";
+import { KeyboardEvent, MouseEvent } from "react";
 
 import dayjs from "dayjs";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/20/solid";
@@ -67,6 +67,12 @@ const Conversations = ({ data }: ConversationsProps) => {
     open();
   };
 
+  const handleKeyDown = (e: KeyboardEvent, id: number) => {
+    if (e.key === "Enter") {
+      handleConversationClick(id);
+    }
+  };
+
   return (
     <div className="relative flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] pr-3 overflow-y-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-gray-100 scrollbar-track-[#fafafa]">
       <div className="z-10 sticky top-0 bg-[#fafafa]">
@@ -95,6 +101,8 @@ const Conversations = ({ data }: ConversationsProps) => {
                   key={`conversation_${i}`}
                   className={`relative w-full p-2 pr-0 ${selectedConversationId === id ? "bg-gray-200" : "hover:bg-gray-100"} rounded-lg text-gray-700 text-sm font-medium cursor-pointer group/item`}
                   onClick={() => handleConversationClick(id as number)}
+                  onKeyDown={(e) => handleKeyDown(e, id as number)}
+                  tabIndex={0}
                 >
                   <div className="relative grow overflow-hidden whitespace-nowrap">
                     {name}

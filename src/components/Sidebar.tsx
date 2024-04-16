@@ -25,8 +25,14 @@ const sidebarStyles = {
 const Sidebar = () => {
   const [loading, setLoading] = useState(false);
   const { isOpen } = useSideBarStore();
-  const { profileImageUrl, userName, open, setUserName, setProfileImageUrl } =
-    useSettingsStore();
+  const {
+    profileImageUrl,
+    userName,
+    isOpen: isDialogOpen,
+    open,
+    setUserName,
+    setProfileImageUrl,
+  } = useSettingsStore();
 
   const { conversations, isLoading } = useGetConversations();
 
@@ -141,6 +147,8 @@ const Sidebar = () => {
             variant="ghost"
             className="flex justify-start items-center gap-x-2 w-full px-2"
             onClick={handleSettingsBtnClick}
+            aria-haspopup="true"
+            aria-expanded={isDialogOpen}
           >
             <div
               className={`flex justify-center w-8 h-8 bg-slate-200 rounded-full overflow-hidden`}
