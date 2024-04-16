@@ -28,12 +28,7 @@ const SettingsDialog = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={toggle}>
-      <DialogContent
-        className="flex flex-col gap-0 w-[70%] max-w-screen-lg min-h-fit max-h-[80%] p-0 overflow-auto focus:outline-none"
-        onOpenAutoFocus={(event) => {
-          event.preventDefault();
-        }}
-      >
+      <DialogContent className="flex flex-col gap-0 w-[70%] max-w-screen-lg min-h-fit max-h-[80%] p-0 overflow-auto focus:outline-none">
         <div className="relative p-6 border-b border-gray-100">
           <DialogHeader>
             <DialogTitle>Settings</DialogTitle>

@@ -22,7 +22,10 @@ const ChatSelect = () => {
 
   return (
     <Select onValueChange={handleValueChange} defaultValue={model}>
-      <SelectTrigger className="w-[150px] border-0 text-lg font-bold hover:bg-accent hover:text-accent-foreground focus-visible:ring-transparent focus:ring-transparent">
+      <SelectTrigger
+        className="w-[150px] border-0 text-lg font-bold hover:bg-accent hover:text-accent-foreground focus-visible:ring-transparent focus:ring-transparent"
+        aria-label="Select Model"
+      >
         <SelectValue
           placeholder={model === "gpt-3.5-turbo" ? "GPT-3.5" : "GPT-4.0"}
         />
