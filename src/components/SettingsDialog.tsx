@@ -36,7 +36,9 @@ const SettingsDialog = () => {
         </div>
 
         <SettingsLayout />
-        <div className="absolute bottom-3 left-6 text-xs">v{appVersion}</div>
+        <div className="sticky bottom-3 left-6 w-[20%] text-xs">
+          v{appVersion}
+        </div>
       </DialogContent>
     </Dialog>
   );

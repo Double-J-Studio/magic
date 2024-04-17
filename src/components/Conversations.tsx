@@ -75,7 +75,7 @@ const Conversations = ({ data }: ConversationsProps) => {
 
   return (
     <div className="relative flex-col flex-1 w-full h-full min-h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] pr-3 overflow-y-auto scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-gray-100 scrollbar-track-[#fafafa]">
-      <div className="z-10 sticky top-0 bg-[#fafafa]">
+      <div className="z-30 sticky top-0 bg-[#fafafa]">
         <Button
           type="button"
           variant="ghost"
