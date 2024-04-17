@@ -20,7 +20,7 @@ const MainPage = () => {
 
   return (
     <main className="relative flex flex-col justify-between min-w-full h-screen p-6">
-      <div className="flex justify-start py-2">
+      <div className="flex justify-start pt-3.5 pb-2">
         <ChatSelect />
       </div>
       {messages &&
