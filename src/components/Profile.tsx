@@ -27,14 +27,16 @@ interface FormData {
 const Profile = () => {
   const [isReadOnly, setIsReadOnly] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const { userName, profileImageUrl, setUserName, setProfileImageUrl } =
     useSettingsStore();
-  const { register, handleSubmit, setValue, setFocus } = useForm<FormData>({
-    defaultValues: {
-      name: "",
-    },
-  });
+  const { register, handleSubmit, setValue, setFocus, reset } =
+    useForm<FormData>({
+      defaultValues: {
+        name: "",
+      },
+    });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -48,6 +50,21 @@ const Profile = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReadOnly]);
+
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent): void {
+      if (formRef.current && !formRef.current.contains(e.target as Node)) {
+        setIsReadOnly(true);
+        reset({ name: userName });
+      }
+    }
+
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formRef]);
 
   const handleMyPhotoClick = () => {
     fileInputRef.current?.click();
@@ -138,6 +155,7 @@ const Profile = () => {
             <form
               className="relative"
               onSubmit={handleSubmit((data, e) => handleFormSubmit(data, e))}
+              ref={formRef}
             >
               <Label htmlFor="userName" className="sr-only">
                 Name
