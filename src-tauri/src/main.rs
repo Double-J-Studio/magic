@@ -1,9 +1,12 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use serde::Serialize;
 use tauri_plugin_sql::{Migration, MigrationKind};
 use reqwest;
 use base64::{Engine as _, engine::{general_purpose}};
+use std::process::{Command};
+use std::str;
 
 #[tauri::command]
 fn toggle_window(window: tauri::Window) {
@@ -34,6 +37,69 @@ fn write_image(image_url: &str) -> String {
     }
 
     base64_image
+}
+
+#[tauri::command]
+fn get_ollama_version() -> String {
+    let output = match Command::new("ollama")
+    .arg("-v").output() {
+        Ok(output) => output,
+        Err(error) => {
+            println!("command failed error {}", error);
+            return String::from("")
+        },
+    };
+
+    if output.status.success() {
+        return str::from_utf8(&output.stdout).expect("command output to string convert failed").trim().to_string()
+    } else {
+        println!("command status failed {}", String::from_utf8_lossy(&output.stderr));
+        return String::from("")
+    }
+}
+
+#[derive(Serialize)]
+struct Model {
+    id:String,
+    name:String,
+    size:String,
+    modified:String,
+}
+
+#[tauri::command]
+fn get_ollama_models() -> Vec<Model> {
+    let mut models: Vec<Model> = Vec::new();
+
+    let output = match Command::new("ollama").arg("list").output() {
+        Ok(output) => output,
+        Err(error) => {
+            println!("command failed error {}", error);
+            return models
+        },
+    };
+    
+    if output.status.success() {
+        let models_text = str::from_utf8(&output.stdout).expect("command output to string convert failed").trim().to_string();
+        for line in models_text.lines().skip(1) {
+            let fields: Vec<&str> = line.split("\t").collect();
+            
+            let name = fields[0].trim().to_string();
+            let id = fields[1].trim().to_string();
+            let size = fields[2].trim().to_string();
+            let modified = fields[3..].join(" ");
+
+            let model = Model {
+                id,
+                name,
+                size,
+                modified
+            };
+            models.push(model);
+        }
+        return models
+    } else {
+        return models
+    }
 }
 
 fn main() {
@@ -134,7 +200,7 @@ fn main() {
     ];
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![write_image,toggle_window])
+        .invoke_handler(tauri::generate_handler![write_image,toggle_window,get_ollama_version,get_ollama_models])
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_sql::Builder::default().add_migrations("sqlite:magic.db", migrations).build())
         .run(tauri::generate_context!())
