@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/tauri";
 
+import { safeParseJSON } from "@/utils/json";
+
 interface CreateChatCompletionStreamParams {
   apiKey: string;
   model: string;
@@ -92,13 +94,4 @@ export async function createImage({ apiKey, ...body }: CreateImageParams) {
   const localImageUrl = await invoke("write_image", { imageUrl });
 
   return localImageUrl as string;
-}
-
-function safeParseJSON(s: string) {
-  try {
-    return JSON.parse(s || "{}");
-  } catch (error) {
-    console.error("error", error);
-    return {};
-  }
 }
