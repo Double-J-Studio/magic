@@ -3,6 +3,7 @@ import { useScrollToBottom, useSticky } from "react-scroll-to-bottom";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { convertToUpper, removePatterns } from "@/utils/convert";
 
 import SkeletonCard from "@/components/SkeletonCard";
 import { Button } from "@/components/ui/button";
@@ -27,23 +28,29 @@ const ChatView = () => {
     queryClient.getQueryData(["messages", selectedConversationId]) || [];
 
   const getModelName = (model: string) => {
-    if (model?.includes("gpt")) {
-      return "ChatGPT";
-    }
+    switch (true) {
+      case model?.includes("gpt"):
+        return "ChatGPT";
 
-    if (model?.includes("dall")) {
-      return "DALL·E 3";
-    }
+      case model?.includes("dall"):
+        return "DALL·E 3";
 
-    if (
-      model?.includes("llama") ||
-      model?.includes("mixtral") ||
-      model?.includes("gemini")
-    ) {
-      return capitalizeFirstLetter(model?.split("-")[0]);
-    }
+      case model?.includes("ollama"):
+        return convertToUpper(
+          removePatterns(model, "ollama-", ":latest"),
+          "l",
+          "m"
+        );
 
-    return capitalizeFirstLetter(model);
+      case model?.includes("mixtral") || model?.includes("gemini"):
+        return capitalizeFirstLetter(removePatterns(model));
+
+      case model?.includes("llama"):
+        return convertToUpper(removePatterns(model), "l", "m");
+
+      default:
+        return capitalizeFirstLetter(model);
+    }
   };
 
   return (

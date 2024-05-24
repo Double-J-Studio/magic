@@ -2,6 +2,7 @@ import SettingsMenu from "@/components/SettingsMenu";
 import ApiKeySetting from "@/components/ApiKeySetting";
 import ImageGallery from "@/components/ImageGallery";
 import Profile from "@/components/Profile";
+import Ollama from "@/components/Ollama";
 
 import useSettingsStore from "@/state/useSettingsStore";
 
@@ -16,6 +17,7 @@ const SettingsLayout = () => {
         {selectedMenuItem === "api-key-setting" && <ApiKeySetting />}
         {selectedMenuItem === "image-gallery" && <ImageGallery />}
         {selectedMenuItem === "profile" && <Profile />}
+        {selectedMenuItem === "ollama" && <Ollama />}
       </div>
     </div>
   );

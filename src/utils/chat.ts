@@ -4,6 +4,7 @@ import { createGroqChatCompletionStream } from "@/utils/groq";
 import { db } from "@/utils/tauri/db";
 import { search } from "@/utils/bing";
 import { createChatCompletionStream, createImage } from "@/utils/openai";
+import { ollama } from "@/utils/ollama";
 
 import { Message } from "@/state/useMessageStore";
 
@@ -259,4 +260,60 @@ export async function geminiChat({
       description: error,
     });
   }
+}
+
+interface OllamaChat {
+  model: string;
+  messages: Message[];
+  message: string;
+  conversationId: number;
+  setData: (message: string) => void;
+  setAlertInformation: SetAlertInformationType;
+}
+
+export async function ollamaChat({
+  model,
+  messages,
+  message,
+  conversationId,
+  setData,
+  setAlertInformation,
+}: OllamaChat) {
+  let answer = "";
+  await ollama
+    .chatStream({
+      model: model,
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful AI. Please answer in the language I asked.",
+        },
+        ...messages.map((message: Message) => {
+          return { role: message.role, content: message.content };
+        }),
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+      onMessage: (message) => {
+        answer += message;
+        setData(message);
+      },
+    })
+    .then(async (_) => {
+      await db.conversation.message.insert({
+        model: model,
+        content: answer,
+        role: "assistant",
+        conversationId: conversationId,
+      });
+    })
+    .catch((error) => {
+      console.error("error", error);
+      setAlertInformation({
+        description: error,
+      });
+    });
 }

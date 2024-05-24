@@ -10,3 +10,35 @@ export async function blobToBase64(blobUrl: string) {
     };
   });
 }
+
+export function convertToUpper(text: string, char1 = "", char2 = "") {
+  const escapeRegExp = (char?: string) =>
+    char?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  if (!char1 && !char2) {
+    return text;
+  }
+
+  const regexParts = [];
+  if (char1) regexParts.push(escapeRegExp(char1));
+  if (char2) regexParts.push(escapeRegExp(char2));
+  const regex = new RegExp(regexParts.join("|"), "g");
+
+  return text.replace(regex, (match) => match.toUpperCase());
+}
+
+export function removePatterns(text: string, char1 = "", char2 = "") {
+  const escapeRegExp = (char?: string) =>
+    char?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  if (!char1 && !char2) {
+    return text?.split("-")[0];
+  }
+
+  const regexParts = [];
+  if (char1) regexParts.push(escapeRegExp(char1));
+  if (char2) regexParts.push(escapeRegExp(char2));
+  const regex = new RegExp(regexParts.join("|"), "g");
+
+  return text.replace(regex, "").trim();
+}

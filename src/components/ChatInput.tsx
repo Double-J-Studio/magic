@@ -9,8 +9,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { checkApiKeys, isCheckModel } from "@/utils/check";
 import { db } from "@/utils/tauri/db";
 import { useGetConversations } from "@/hooks/db/useGetConversations";
-import { geminiChat, gptChat, gptImageChat, groqChat } from "@/utils/chat";
+import {
+  geminiChat,
+  gptChat,
+  gptImageChat,
+  groqChat,
+  ollamaChat,
+} from "@/utils/chat";
 import { useGetImages } from "@/hooks/db/useGetImages";
+import { ollama } from "@/utils/ollama";
 
 import { Button } from "@/components/ui/button";
 import Tooltip from "@/components/Tooltip";
@@ -229,6 +236,28 @@ const ChatInput = () => {
               const clone = JSON.parse(JSON.stringify(prev));
               clone[clone.length - 1].model = model;
               clone[clone.length - 1].content += text;
+
+              return clone;
+            }
+          );
+        },
+        setAlertInformation: setAlertInformation,
+      });
+    }
+
+    if (isCheckModel("ollama", model)) {
+      ollamaChat({
+        model: model.replace("ollama-", ""),
+        messages: clone,
+        message: data.message,
+        conversationId: conversationId,
+        setData: (message: string) => {
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (prev: Message[]) => {
+              const clone = JSON.parse(JSON.stringify(prev));
+              clone[clone.length - 1].model = model;
+              clone[clone.length - 1].content += message;
 
               return clone;
             }
