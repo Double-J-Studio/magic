@@ -1,4 +1,4 @@
-import { KeyboardEvent } from "react";
+import { KeyboardEvent, useEffect } from "react";
 
 import useSettingsStore from "@/state/useSettingsStore";
 
@@ -16,6 +16,11 @@ const SettingsMenu = () => {
       handleMenuClick(value);
     }
   };
+
+  useEffect(() => {
+    setSelectedMenuItem("profile");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <nav className="flex flex-col flex-1 justify-between w-[30%] sm:min-w-40 lg:max-w-64 min-h-full p-3 overflow-y-auto">

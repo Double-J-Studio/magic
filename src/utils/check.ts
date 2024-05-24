@@ -30,7 +30,7 @@ export function checkApiKeys(setApiKeys: (apiKeys: ApiKey[]) => void) {
   });
 }
 
-type Service = "gpt" | "dalle" | "openai" | "groq" | "gemini";
+type Service = "gpt" | "dalle" | "openai" | "groq" | "gemini" | "ollama";
 
 export function isCheckModel(service: Service, model: string) {
   const IS_GPT_MODEL = model === MODELS["GPT-3.5"] || model === MODELS["GPT-4"];
@@ -38,6 +38,7 @@ export function isCheckModel(service: Service, model: string) {
   const IS_OPENAI_MODEL = IS_GPT_MODEL || IS_DALLE_MODEL;
   const IS_GROQ_MODEL = model === MODELS.LLAMA2 || model === MODELS.MIXTRAL;
   const IS_GEMINI_MODEL = model === MODELS.GEMINI;
+  const IS_OLLAMA_MODEL = model.includes("olama");
 
   switch (service) {
     case "gpt":
@@ -50,5 +51,7 @@ export function isCheckModel(service: Service, model: string) {
       return IS_GROQ_MODEL;
     case "gemini":
       return IS_GEMINI_MODEL;
+    case "ollama":
+      return IS_OLLAMA_MODEL;
   }
 }
