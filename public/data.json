@@ -1,0 +1,13 @@
+{
+  "OpenAI": [
+    { "id": "GPT-3.5", "name": "GPT-3.5", "model": "gpt-3.5-turbo" },
+    { "id": "GPT-4", "name": "GPT-4", "model": "gpt-4-turbo-preview" },
+    { "id": "GPT-4O", "name": "GPT-4o", "model": "gpt-4o" },
+    { "id": "DALL-E-3", "name": "DALL·E 3", "model": "dall-e-3" }
+  ],
+  "Groq": [
+    { "id": "LLAMA3", "name": "LLaMA3", "model": "llama3-8b-8192" },
+    { "id": "MIXTRAL", "name": "Mixtral", "model": "mixtral-8x7b-32768" }
+  ],
+  "Google": [{ "id": "GEMINI", "name": "Gemini", "model": "gemini-pro" }]
+}

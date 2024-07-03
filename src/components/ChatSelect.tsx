@@ -3,6 +3,10 @@ import { useEffect, useState } from "react";
 import { getOllamaModels } from "@/utils/tauri/ollama";
 import { convertToUpper, removePatterns } from "@/utils/convert";
 import { getTotalObjectCount } from "@/utils/count";
+import {
+  GroupedModelsByPlatform,
+  useGetGroupedModelsByPlatform,
+} from "@/hooks/db/useGetGroupedModelsByPlatform";
 
 import {
   Select,
@@ -17,21 +21,21 @@ import ModelIcon from "@/components/ModelIcon";
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 
-import {
-  GROUPED_MODELS_BY_PLATFORM,
-  GroupedModelsByPlatform,
-} from "@/constant";
-
 const ChatSelect = () => {
-  const [groupedModelsByPlatform, setGroupedModelsByPlatform] =
-    useState<GroupedModelsByPlatform>({});
+  const [groupedModels, setGroupedModels] = useState<GroupedModelsByPlatform>(
+    {}
+  );
 
   const { model, setModel } = useSelectedModelStore();
+
+  const { groupedModelsByPlatform } = useGetGroupedModelsByPlatform();
 
   useEffect(() => {
     async function groupingModels() {
       try {
         const ollamaModels = await getOllamaModels();
+        const GROUPED_MODELS_BY_PLATFORM =
+          groupedModelsByPlatform as GroupedModelsByPlatform;
 
         const modifiedOllamaModels = (
           ollamaModels as { [key: string]: string }[]
@@ -47,7 +51,7 @@ const ChatSelect = () => {
           };
         });
 
-        setGroupedModelsByPlatform({
+        setGroupedModels({
           ...GROUPED_MODELS_BY_PLATFORM,
           Ollama: modifiedOllamaModels,
         });
@@ -56,9 +60,11 @@ const ChatSelect = () => {
       }
     }
 
-    groupingModels();
+    if (groupedModelsByPlatform) {
+      groupingModels();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [groupedModelsByPlatform]);
 
   const handleValueChange = (value: string) => {
     setModel(value);
@@ -75,11 +81,11 @@ const ChatSelect = () => {
         />
       </SelectTrigger>
       <SelectContent className="w-[200px]">
-        {Object.keys(groupedModelsByPlatform).map((platform) => {
+        {Object.keys(groupedModels).map((platform) => {
           return (
             <SelectGroup key={platform}>
               <SelectLabel>{platform}</SelectLabel>
-              {groupedModelsByPlatform[platform].map((model) => {
+              {groupedModels[platform].map((model) => {
                 return (
                   <SelectItem
                     key={`${platform}_${model.name}`}

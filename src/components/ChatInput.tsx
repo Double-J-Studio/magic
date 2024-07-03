@@ -6,7 +6,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { checkApiKeys, isCheckModel } from "@/utils/check";
+import { checkApiKeys } from "@/utils/check";
 import { db } from "@/utils/tauri/db";
 import { useGetConversations } from "@/hooks/db/useGetConversations";
 import {
@@ -17,7 +17,7 @@ import {
   ollamaChat,
 } from "@/utils/chat";
 import { useGetImages } from "@/hooks/db/useGetImages";
-import { ollama } from "@/utils/ollama";
+import useModelCheck from "@/hooks/useModelCheck";
 
 import { Button } from "@/components/ui/button";
 import Tooltip from "@/components/Tooltip";
@@ -55,6 +55,8 @@ const ChatInput = () => {
   const queryClient = useQueryClient();
   const { refetch } = useGetConversations();
   const { refetch: refetchImages } = useGetImages();
+
+  const { isCheckModel } = useModelCheck();
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
