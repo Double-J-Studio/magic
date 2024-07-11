@@ -42,7 +42,7 @@ export async function groqChat({
     messages: [
       {
         role: "system",
-        content: "You are a helpful AI. Please answer in the language I asked.",
+        content: getSelectedAssistant(),
       },
       ...messages.map((message: Message) => {
         return { role: message.role, content: message.content };
@@ -191,7 +191,7 @@ export async function gptChat({
     messages: [
       {
         role: "system",
-        content: "You are a helpful AI. Please answer in the language I asked.",
+        content: getSelectedAssistant(),
       },
       ...messages.map((message: Message) => {
         return { role: message.role, content: message.content };
@@ -240,7 +240,7 @@ export async function geminiChat({
   setData,
   setAlertInformation,
 }: GeminiChat) {
-  const prompt = `${message}. Please answer in the language I asked.`;
+  const prompt = `${message}. ${getSelectedAssistant()}`;
   try {
     const result = await geminiModel.generateContent(prompt);
     const response = await result.response;
@@ -286,8 +286,7 @@ export async function ollamaChat({
       messages: [
         {
           role: "system",
-          content:
-            "You are a helpful AI. Please answer in the language I asked.",
+          content: getSelectedAssistant(),
         },
         ...messages.map((message: Message) => {
           return { role: message.role, content: message.content };
@@ -316,4 +315,14 @@ export async function ollamaChat({
         description: error,
       });
     });
+}
+
+function getSelectedAssistant() {
+  const selectedAssistant = localStorage.getItem("selectedAssistant");
+  if (selectedAssistant) {
+    const result = JSON.parse(selectedAssistant);
+    return result.state.assistant.instructions;
+  }
+
+  return "You are a helpful AI. Please answer in the language I asked.";
 }

@@ -1,5 +1,11 @@
 import { create } from "zustand";
 
+export interface Assistant {
+  id: string;
+  name: string;
+  instructions: string;
+}
+
 interface UseSettingsStoreProps {
   isOpen: boolean;
   isLoading: boolean;
@@ -7,6 +13,8 @@ interface UseSettingsStoreProps {
   profileImageUrl: string | null;
   selectedMenuItem: string;
   ollamaVersion: string;
+  assistants: Assistant[];
+
   open: () => void;
   close: () => void;
   toggle: () => void;
@@ -15,6 +23,7 @@ interface UseSettingsStoreProps {
   setSelectedMenuItem: (menuItem: string) => void;
   setOllamaVersion: (version: string) => void;
   setIsLoading: (loading: boolean) => void;
+  setAssistants: (assistants: Assistant[]) => void;
 }
 
 const useSettingsStore = create<UseSettingsStoreProps>()((set) => ({
@@ -24,6 +33,7 @@ const useSettingsStore = create<UseSettingsStoreProps>()((set) => ({
   profileImageUrl: "",
   selectedMenuItem: "profile",
   ollamaVersion: "",
+  assistants: [],
 
   open: () => set(() => ({ isOpen: true })),
   close: () => set(() => ({ isOpen: false })),
@@ -45,6 +55,12 @@ const useSettingsStore = create<UseSettingsStoreProps>()((set) => ({
   },
   setIsLoading: (loading) => {
     set((state) => ({ ...state, isLoading: loading }));
+  },
+  setAssistants: (assistants) => {
+    set((state) => ({
+      ...state,
+      assistants: assistants,
+    }));
   },
 }));
 

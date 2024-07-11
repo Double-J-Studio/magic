@@ -21,6 +21,7 @@ import useModelCheck from "@/hooks/useModelCheck";
 
 import { Button } from "@/components/ui/button";
 import Tooltip from "@/components/Tooltip";
+import AssistantsDropdown from "@/components/AssistantsDropdown";
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 import { Message } from "@/state/useMessageStore";
@@ -276,6 +277,8 @@ const ChatInput = () => {
 
   return (
     <div className="flex items-center justify-center w-full">
+      <AssistantsDropdown />
+
       <form
         className="relative grid gap-2 w-[60%]"
         onSubmit={handleMessageSend}
