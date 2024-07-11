@@ -3,6 +3,7 @@ import ApiKeySetting from "@/components/ApiKeySetting";
 import ImageGallery from "@/components/ImageGallery";
 import Profile from "@/components/Profile";
 import Ollama from "@/components/Ollama";
+import Assistants from "@/components/Assistants";
 
 import useSettingsStore from "@/state/useSettingsStore";
 
@@ -18,6 +19,7 @@ const SettingsLayout = () => {
         {selectedMenuItem === "image-gallery" && <ImageGallery />}
         {selectedMenuItem === "profile" && <Profile />}
         {selectedMenuItem === "ollama" && <Ollama />}
+        {selectedMenuItem === "assistants" && <Assistants />}
       </div>
     </div>
   );
