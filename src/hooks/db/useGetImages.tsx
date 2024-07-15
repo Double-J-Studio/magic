@@ -7,7 +7,7 @@ export interface Images {
   [key: string]: { loading: boolean; blobUrl: string };
 }
 
-export const useGetImages = () => {
+export const useGetImages = ({ enabled = false }: { enabled: boolean }) => {
   const {
     data: images,
     isLoading,
@@ -18,6 +18,7 @@ export const useGetImages = () => {
     queryFn: async () => {
       return await db.image.list();
     },
+    enabled: enabled,
   });
 
   return { images, isLoading, error, refetch };

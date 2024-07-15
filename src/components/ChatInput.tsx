@@ -16,7 +16,6 @@ import {
   groqChat,
   ollamaChat,
 } from "@/utils/chat";
-import { useGetImages } from "@/hooks/db/useGetImages";
 import useModelCheck from "@/hooks/useModelCheck";
 
 import { Button } from "@/components/ui/button";
@@ -55,7 +54,6 @@ const ChatInput = () => {
 
   const queryClient = useQueryClient();
   const { refetch } = useGetConversations();
-  const { refetch: refetchImages } = useGetImages();
 
   const { isCheckModel } = useModelCheck();
 
@@ -199,7 +197,6 @@ const ChatInput = () => {
         },
         setAlertInformation: setAlertInformation,
       });
-      await refetchImages();
     }
 
     if (isCheckModel("gpt", model)) {

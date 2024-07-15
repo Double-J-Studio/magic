@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/20/solid";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Tooltip from "@/components/Tooltip";
 import DeleteDialog from "@/components/DeleteDialog";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import SettingsContentLayout from "@/components/SettingsContentLayout";
 
 import useSettingsStore, { Assistant } from "@/state/useSettingsStore";
 
@@ -137,10 +137,11 @@ const Assistants = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-w-full py-10 overflow-auto">
-      <Card className="w-full max-w-[80%] h-[80%] p-6 shadow-lg">
-        <CardHeader className="relative flex flex-row items-center justify-between p-0">
-          <CardTitle className="">Assistants</CardTitle>
+    <SettingsContentLayout
+      title="Assistants"
+      headerClassName="flex-row items-center justify-between"
+      HeaderButton={
+        <>
           {!(isCreateButtonClicked || isModifyButtonClicked) && (
             <Button
               type="button"
@@ -153,140 +154,137 @@ const Assistants = () => {
               <span>Create</span>
             </Button>
           )}
-        </CardHeader>
+        </>
+      }
+    >
+      <div className="flex items-center justify-center gap-1">
+        <div className="relative w-full">
+          {isCreateButtonClicked || isModifyButtonClicked ? (
+            <form
+              className="relative flex flex-col gap-2 w-full p-2 border border-solid border-gray-300 rounded-md"
+              onSubmit={handleSubmit(handleFormSubmit)}
+            >
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  className={`w-full px-2 text-xs focus-visible:ring-transparent`}
+                  placeholder="User friendly name"
+                  {...register("name")}
+                />
+              </div>
 
-        <CardContent className="flex flex-col gap-3 py-6 px-0">
-          <div className="flex items-center justify-center gap-1">
-            <div className="relative w-full">
-              {isCreateButtonClicked || isModifyButtonClicked ? (
-                <form
-                  className="relative flex flex-col gap-2 w-full p-2 border border-solid border-gray-300 rounded-md"
-                  onSubmit={handleSubmit(handleFormSubmit)}
-                >
-                  <div>
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      className={`w-full px-2 text-xs focus-visible:ring-transparent`}
-                      placeholder="User friendly name"
-                      {...register("name")}
-                    />
-                  </div>
+              <div>
+                <Label htmlFor="instructions">Instructions</Label>
+                <Controller
+                  name="instructions"
+                  control={control}
+                  rules={{
+                    required: "Instructions is required",
+                    minLength: {
+                      value: 2,
+                      message: "Instructions must be at least 2 characters.",
+                    },
+                  }}
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <AutosizeTextarea
+                        {...field}
+                        id="instructions"
+                        className={`w-full px-2 text-xs focus-visible:ring-transparent`}
+                        placeholder="You are a helpful assistant."
+                      />
 
-                  <div>
-                    <Label htmlFor="instructions">Instructions</Label>
-                    <Controller
-                      name="instructions"
-                      control={control}
-                      rules={{
-                        required: "Instructions is required",
-                        minLength: {
-                          value: 2,
-                          message:
-                            "Instructions must be at least 2 characters.",
-                        },
-                      }}
-                      render={({ field, fieldState: { error } }) => (
-                        <>
-                          <AutosizeTextarea
-                            {...field}
-                            id="instructions"
-                            className={`w-full px-2 text-xs focus-visible:ring-transparent`}
-                            placeholder="You are a helpful assistant."
-                          />
-
-                          {error && (
-                            <p className="px-2 py-1 text-xs text-red-500">
-                              {error.message}
-                            </p>
-                          )}
-                        </>
+                      {error && (
+                        <p className="px-2 py-1 text-xs text-red-500">
+                          {error.message}
+                        </p>
                       )}
-                    />
-                  </div>
+                    </>
+                  )}
+                />
+              </div>
 
-                  <div className="flex justify-end gap-1 mt-1">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      name="cancel"
-                      onClick={() => handleCancelButtonClick()}
-                    >
-                      Cancel
-                    </Button>
+              <div className="flex justify-end gap-1 mt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  name="cancel"
+                  onClick={() => handleCancelButtonClick()}
+                >
+                  Cancel
+                </Button>
 
-                    <Button
-                      type="submit"
-                      variant="default"
-                      name={isCreateButtonClicked ? "save" : "edit"}
-                    >
-                      {isCreateButtonClicked ? "Save" : "Edit"}
-                    </Button>
-                  </div>
-                </form>
-              ) : (
-                <ul className="flex flex-col gap-2">
-                  {fields.map((field, index) => {
-                    return (
-                      <li key={field.id} className="flex gap-1">
-                        <div className="relative flex flex-col gap-1 w-full p-2 border border-solid border-gray-300 rounded-md group/item">
-                          <div className="max-w-[calc(100%-20px)]">
-                            <Label htmlFor="name" className="sr-only">
-                              Name
-                            </Label>
-                            <div className="min-h-5 text-sm font-semibold">
-                              {field.name || "Untitled Assistant"}
-                            </div>
-                          </div>
-
-                          <div className="max-w-[calc(100%-20px)]">
-                            <Label htmlFor="instructions" className="sr-only">
-                              Instructions
-                            </Label>
-                            <div className="min-h-5 text-xs line-clamp-3">
-                              {field.instructions}
-                            </div>
-                          </div>
-
-                          <div className="absolute top-2 right-2 flex opacity-0 group-hover/item:opacity-100 transition-opacity duration-500">
-                            <Tooltip side="top" description="Modify">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                className="w-5 h-5 p-0 group/button hover:bg-transparent"
-                                name="modify"
-                                onClick={() =>
-                                  handleModifyButtonClick(field, index)
-                                }
-                              >
-                                <span className="sr-only">Modify</span>
-                                <PencilIcon className="w-3 h-3 group-hover/button:text-gray-600" />
-                              </Button>
-                            </Tooltip>
-
-                            <Tooltip side="top" description="Delete">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                className="w-5 h-5 p-0 group/button hover:bg-transparent"
-                                name="delete"
-                                onClick={() => handleDeleteButtonClick(index)}
-                              >
-                                <span className="sr-only">Delete</span>
-                                <TrashIcon className="w-3 h-3 group-hover/button:text-gray-600" />
-                              </Button>
-                            </Tooltip>
-                          </div>
+                <Button
+                  type="submit"
+                  variant="default"
+                  name={isCreateButtonClicked ? "save" : "edit"}
+                >
+                  {isCreateButtonClicked ? "Save" : "Edit"}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {fields.map((field, index) => {
+                return (
+                  <li key={field.id} className="flex gap-1">
+                    <div className="relative flex flex-col gap-1 w-full p-2 border border-solid border-gray-300 rounded-md group/item">
+                      <div className="max-w-[calc(100%-20px)]">
+                        <Label htmlFor="name" className="sr-only">
+                          Name
+                        </Label>
+                        <div className="min-h-5 text-sm font-semibold">
+                          {field.name || "Untitled Assistant"}
                         </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                      </div>
+
+                      <div className="max-w-[calc(100%-20px)]">
+                        <Label htmlFor="instructions" className="sr-only">
+                          Instructions
+                        </Label>
+                        <div className="min-h-5 text-xs line-clamp-3">
+                          {field.instructions}
+                        </div>
+                      </div>
+
+                      <div className="absolute top-2 right-2 flex opacity-0 group-hover/item:opacity-100 transition-opacity duration-500">
+                        <Tooltip side="top" description="Modify">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="w-5 h-5 p-0 group/button hover:bg-transparent"
+                            name="modify"
+                            onClick={() =>
+                              handleModifyButtonClick(field, index)
+                            }
+                          >
+                            <span className="sr-only">Modify</span>
+                            <PencilIcon className="w-3 h-3 group-hover/button:text-gray-600" />
+                          </Button>
+                        </Tooltip>
+
+                        <Tooltip side="top" description="Delete">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="w-5 h-5 p-0 group/button hover:bg-transparent"
+                            name="delete"
+                            onClick={() => handleDeleteButtonClick(index)}
+                          >
+                            <span className="sr-only">Delete</span>
+                            <TrashIcon className="w-3 h-3 group-hover/button:text-gray-600" />
+                          </Button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
 
       <DeleteDialog
         title="Delete Assistant"
@@ -295,7 +293,7 @@ const Assistants = () => {
         onOpenChange={handleOpenChange}
         deleteFunction={handleAssistantDelete}
       />
-    </div>
+    </SettingsContentLayout>
   );
 };
 
