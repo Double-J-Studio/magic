@@ -12,11 +12,11 @@ import { kv } from "@/utils/tauri/kv";
 import { blobToBase64 } from "@/utils/convert";
 import { useToast } from "@/hooks/useToast";
 
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Tooltip from "@/components/Tooltip";
+import SettingsContentLayout from "@/components/SettingsContentLayout";
 
 import useSettingsStore from "@/state/useSettingsStore";
 
@@ -107,84 +107,78 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-w-full py-10 overflow-auto">
-      <Card className="w-full max-w-[80%] h-[80%] p-10 shadow-lg">
-        <CardContent className="flex flex-col gap-3 p-0">
-          <div className="relative flex items-center justify-center">
-            <label htmlFor="fileUpload" className="sr-only">
-              Image File Upload
-            </label>
-            <input
-              type="file"
-              id="fileUpload"
-              className="hidden"
-              accept="image/jpg, image/png, image/jpeg"
-              ref={fileInputRef}
-              onChange={handleFileChange}
+    <SettingsContentLayout title="Profile">
+      <div className="relative flex items-center justify-center">
+        <label htmlFor="fileUpload" className="sr-only">
+          Image File Upload
+        </label>
+        <input
+          type="file"
+          id="fileUpload"
+          className="hidden"
+          accept="image/jpg, image/png, image/jpeg"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+        />
+
+        <div
+          className="relative w-32 h-32 rounded-full cursor-pointer"
+          onClick={handleMyPhotoClick}
+        >
+          {profileImageUrl ? (
+            // eslint-disable-next-line jsx-a11y/img-redundant-alt
+            <img
+              src={profileImageUrl || ""}
+              alt="Profile Image"
+              className="w-full h-full rounded-full"
             />
+          ) : (
+            <UserCircleIcon className="w-full h-full text-gray-300 rounded-full" />
+          )}
 
-            <div
-              className="relative w-32 h-32 rounded-full cursor-pointer"
-              onClick={handleMyPhotoClick}
+          <Tooltip side="right" description="Image Upload">
+            <Button
+              type="button"
+              variant="ghost"
+              className="absolute right-1 bottom-0 w-10 h-10 p-1 rounded-full group/button hover:bg-transparent"
             >
-              {profileImageUrl ? (
-                // eslint-disable-next-line jsx-a11y/img-redundant-alt
-                <img
-                  src={profileImageUrl || ""}
-                  alt="Profile Image"
-                  className="w-full h-full rounded-full"
-                />
-              ) : (
-                <UserCircleIcon className="w-full h-full text-gray-300 rounded-full" />
-              )}
+              <span className="sr-only">Image Upload</span>
+              <CameraIcon className="w-5 h-5 group-hover/button:text-gray-600" />
+            </Button>
+          </Tooltip>
+        </div>
+      </div>
 
-              <Tooltip side="right" description="Image Upload">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="absolute right-1 bottom-0 w-10 h-10 p-1 rounded-full group/button hover:bg-transparent"
-                >
-                  <span className="sr-only">Image Upload</span>
-                  <CameraIcon className="w-5 h-5 group-hover/button:text-gray-600" />
-                </Button>
-              </Tooltip>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center gap-1">
-            <form
-              className="relative"
-              onSubmit={handleSubmit((data, e) => handleFormSubmit(data, e))}
-              ref={formRef}
+      <div className="flex items-center justify-center gap-1">
+        <form
+          className="relative"
+          onSubmit={handleSubmit((data, e) => handleFormSubmit(data, e))}
+          ref={formRef}
+        >
+          <Label htmlFor="userName" className="sr-only">
+            Name
+          </Label>
+          <Input
+            id="userName"
+            className={`w-52 px-11 text-center focus-visible:ring-transparent ${isReadOnly ? "border-0" : ""}`}
+            placeholder="Name"
+            readOnly={isReadOnly}
+            {...register("name")}
+          />
+          <Tooltip side="top" description={isReadOnly ? "Modify" : "Save"}>
+            <Button
+              type="submit"
+              variant="ghost"
+              className="absolute top-0 right-0 group/button hover:bg-transparent "
+              name={isReadOnly ? "modify" : "save"}
             >
-              <Label htmlFor="userName" className="sr-only">
-                Name
-              </Label>
-              <Input
-                id="userName"
-                className={`w-52 px-11 text-center focus-visible:ring-transparent ${isReadOnly ? "border-0" : ""}`}
-                placeholder="Name"
-                readOnly={isReadOnly}
-                {...register("name")}
-              />
-              <Tooltip side="top" description={isReadOnly ? "Modify" : "Save"}>
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  className="absolute top-0 right-0 group/button hover:bg-transparent "
-                  name={isReadOnly ? "modify" : "save"}
-                >
-                  <span className="sr-only">
-                    {isReadOnly ? "Modify" : "Save"}
-                  </span>
-                  <PencilIcon className="w-3 h-3 group-hover/button:text-gray-600" />
-                </Button>
-              </Tooltip>
-            </form>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+              <span className="sr-only">{isReadOnly ? "Modify" : "Save"}</span>
+              <PencilIcon className="w-3 h-3 group-hover/button:text-gray-600" />
+            </Button>
+          </Tooltip>
+        </form>
+      </div>
+    </SettingsContentLayout>
   );
 };
 

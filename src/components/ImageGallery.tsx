@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import EmptyImage from "@/assets/no-image-yet.png";
 
 const ImageGallery = () => {
-  const { images, isLoading } = useGetImages();
+  const { images, isLoading } = useGetImages({ enabled: true });
   const hasImages = images && images.length > 0;
 
   return (

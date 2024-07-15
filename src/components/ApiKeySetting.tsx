@@ -3,13 +3,7 @@ import { useEffect } from "react";
 import { checkApiKeys } from "@/utils/check";
 
 import ApiKeyInput from "@/components/ApiKeyInput";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import SettingsContentLayout from "@/components/SettingsContentLayout";
 
 import useApiKeyStore from "@/state/useApiKeyStore";
 
@@ -26,22 +20,15 @@ const ApiKeySetting = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center min-w-full py-10 overflow-auto">
-      <Card className="w-full max-w-[80%] shadow-lg">
-        <CardHeader>
-          <CardTitle>API Key Setting</CardTitle>
-          <CardDescription>
-            Manage your API key. You can create multiple API keys to use with
-            your applications.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <ApiKeyInput service="openai" title="OpenAI" value={openaiApiKey} />
-          <ApiKeyInput service="groq" title="Groq" value={groqApiKey} />
-          <ApiKeyInput service="gemini" title="Gemini" value={geminiApiKey} />
-        </CardContent>
-      </Card>
-    </div>
+    <SettingsContentLayout
+      title="API Key Setting"
+      description="Manage your API key. You can create multiple API keys to use with
+    your applications."
+    >
+      <ApiKeyInput service="openai" title="OpenAI" value={openaiApiKey} />
+      <ApiKeyInput service="groq" title="Groq" value={groqApiKey} />
+      <ApiKeyInput service="gemini" title="Gemini" value={geminiApiKey} />
+    </SettingsContentLayout>
   );
 };
 
