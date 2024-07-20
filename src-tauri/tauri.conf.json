@@ -25,6 +25,9 @@
       },
       "globalShortcut": {
         "all": true
+      },
+      "http": {
+        "all": true
       }
     },
     "windows": [
