@@ -18,10 +18,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ModelIcon from "@/components/ModelIcon";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import useSelectedModelStore from "@/state/useSelectedModelStore";
 
 const ChatSelect = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [groupedModels, setGroupedModels] = useState<GroupedModelsByPlatform>(
     {}
   );
@@ -57,6 +59,8 @@ const ChatSelect = () => {
         });
       } catch (err) {
         console.error(err);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -70,7 +74,9 @@ const ChatSelect = () => {
     setModel(value);
   };
 
-  return (
+  return isLoading ? (
+    <Skeleton className="min-w-[150px] h-10" />
+  ) : (
     <Select onValueChange={handleValueChange} defaultValue={model}>
       <SelectTrigger
         className="w-[150px] border-0 text-lg font-bold hover:bg-accent hover:text-accent-foreground focus-visible:ring-transparent focus:ring-transparent"

@@ -10,6 +10,7 @@ import { checkApiKeys } from "@/utils/check";
 import { db } from "@/utils/tauri/db";
 import { useGetConversations } from "@/hooks/db/useGetConversations";
 import {
+  claudeChat,
   geminiChat,
   gptChat,
   gptImageChat,
@@ -50,6 +51,7 @@ const ChatInput = () => {
   const openaiApiKey = useApiKeyStore((state) => state.getApiKey("openai"));
   const groqApiKey = useApiKeyStore((state) => state.getApiKey("groq"));
   const geminiApiKey = useApiKeyStore((state) => state.getApiKey("gemini"));
+  const claudeApiKey = useApiKeyStore((state) => state.getApiKey("claude"));
   const geminiAI = new GoogleGenerativeAI(geminiApiKey);
 
   const queryClient = useQueryClient();
@@ -249,6 +251,28 @@ const ChatInput = () => {
       ollamaChat({
         model: model.replace("ollama-", ""),
         messages: clone,
+        message: data.message,
+        conversationId: conversationId,
+        setData: (message: string) => {
+          queryClient.setQueryData(
+            ["messages", conversationId],
+            (prev: Message[]) => {
+              const clone = JSON.parse(JSON.stringify(prev));
+              clone[clone.length - 1].model = model;
+              clone[clone.length - 1].content += message;
+
+              return clone;
+            }
+          );
+        },
+        setAlertInformation: setAlertInformation,
+      });
+    }
+
+    if (isCheckModel("claude", model)) {
+      claudeChat({
+        apiKey: claudeApiKey,
+        model: model,
         message: data.message,
         conversationId: conversationId,
         setData: (message: string) => {

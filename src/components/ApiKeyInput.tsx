@@ -36,13 +36,13 @@ const ApiKeyInput = ({ title, service, value }: ApiKeyInputProps) => {
       case "openai":
         clone[0].key = e.currentTarget.value;
         break;
-      case "bing":
+      case "groq":
         clone[1].key = e.currentTarget.value;
         break;
-      case "groq":
+      case "gemini":
         clone[2].key = e.currentTarget.value;
         break;
-      case "gemini":
+      case "claude":
         clone[3].key = e.currentTarget.value;
         break;
     }

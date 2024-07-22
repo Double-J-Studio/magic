@@ -5,6 +5,7 @@
     { "id": "GPT-4O", "name": "GPT-4o", "model": "gpt-4o" },
     { "id": "DALL-E-3", "name": "DALL·E 3", "model": "dall-e-3" }
   ],
+  "Claude": [{ "id": "CLAUDE", "name": "Claude", "model": "claude-3-5-sonnet-20240620" }],
   "Groq": [
     { "id": "LLAMA3", "name": "LLaMA3", "model": "llama3-8b-8192" },
     { "id": "MIXTRAL", "name": "Mixtral", "model": "mixtral-8x7b-32768" }

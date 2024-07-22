@@ -13,6 +13,7 @@ const ApiKeySetting = () => {
   const openaiApiKey = useApiKeyStore((state) => state.getApiKey("openai"));
   const groqApiKey = useApiKeyStore((state) => state.getApiKey("groq"));
   const geminiApiKey = useApiKeyStore((state) => state.getApiKey("gemini"));
+  const claudeApiKey = useApiKeyStore((state) => state.getApiKey("claude"));
 
   useEffect(() => {
     checkApiKeys(setApiKeys);
@@ -28,6 +29,7 @@ const ApiKeySetting = () => {
       <ApiKeyInput service="openai" title="OpenAI" value={openaiApiKey} />
       <ApiKeyInput service="groq" title="Groq" value={groqApiKey} />
       <ApiKeyInput service="gemini" title="Gemini" value={geminiApiKey} />
+      <ApiKeyInput service="claude" title="Claude" value={claudeApiKey} />
     </SettingsContentLayout>
   );
 };

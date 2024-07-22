@@ -5,6 +5,7 @@ import { db } from "@/utils/tauri/db";
 import { search } from "@/utils/bing";
 import { createChatCompletionStream, createImage } from "@/utils/openai";
 import { ollama } from "@/utils/ollama";
+import { claude } from "@/utils/claude";
 
 import { Message } from "@/state/useMessageStore";
 
@@ -296,6 +297,51 @@ export async function ollamaChat({
           content: message,
         },
       ],
+      onMessage: (message) => {
+        answer += message;
+        setData(message);
+      },
+    })
+    .then(async (_) => {
+      await db.conversation.message.insert({
+        model: model,
+        content: answer,
+        role: "assistant",
+        conversationId: conversationId,
+      });
+    })
+    .catch((error) => {
+      console.error("error", error);
+      setAlertInformation({
+        description: error,
+      });
+    });
+}
+
+interface ClaudeChat {
+  apiKey: string;
+  model: string;
+  message: string;
+  conversationId: number;
+  setData: (message: string) => void;
+  setAlertInformation: SetAlertInformationType;
+}
+
+export async function claudeChat({
+  apiKey,
+  model,
+  message,
+  conversationId,
+  setData,
+  setAlertInformation,
+}: ClaudeChat) {
+  let answer = "";
+  await claude
+    .createMessageStream({
+      apiKey: apiKey,
+      model: model,
+      system: getSelectedAssistant(),
+      messages: [{ role: "user", content: message }],
       onMessage: (message) => {
         answer += message;
         setData(message);

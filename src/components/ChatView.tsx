@@ -42,7 +42,9 @@ const ChatView = () => {
           "m"
         );
 
-      case model?.includes("mixtral") || model?.includes("gemini"):
+      case model?.includes("mixtral") ||
+        model?.includes("gemini") ||
+        model?.includes("claude"):
         return capitalizeFirstLetter(removePatterns(model));
 
       case model?.includes("llama"):

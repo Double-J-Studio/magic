@@ -1,4 +1,12 @@
-import { OpenAI, Dalle, Mistral, Gemini, Meta, Ollama } from "@lobehub/icons";
+import {
+  OpenAI,
+  Dalle,
+  Mistral,
+  Gemini,
+  Meta,
+  Ollama,
+  Claude,
+} from "@lobehub/icons";
 import { UserCircleIcon } from "@heroicons/react/20/solid";
 
 import useModels from "@/hooks/useModels";
@@ -35,6 +43,9 @@ const ModelIcon = ({ model, size = 16 }: ModelIconProps) => {
 
     case model?.includes("ollama"):
       return <Ollama.Avatar size={size} />;
+
+    case model === models.CLAUDE:
+      return <Claude.Avatar size={size} />;
 
     default:
       return <UserCircleIcon className="text-white bg-green-500 rounded-md" />;
