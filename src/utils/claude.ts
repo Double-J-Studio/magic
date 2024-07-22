@@ -5,12 +5,14 @@ const CORS_PROXY_API_BASE_URL = "http://localhost:17771";
 interface CreateMessageStreamParams {
   apiKey: string;
   model: string;
+  system: string;
   messages: { role: string; content: string }[];
   onMessage: (message: string) => void;
 }
 
 export async function createMessageStream({
   apiKey,
+  system,
   onMessage,
   ...body
 }: CreateMessageStreamParams) {
@@ -27,6 +29,7 @@ export async function createMessageStream({
         ...body,
         max_tokens: 2048,
         stream: true,
+        system: system,
       }),
     }
   );

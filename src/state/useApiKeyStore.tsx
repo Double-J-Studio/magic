@@ -25,6 +25,10 @@ const useApiKeyStore = create<UseApiKeyStoreProps>()((set, get) => ({
       service: "gemini",
       key: "",
     },
+    {
+      service: "claude",
+      key: "",
+    },
   ],
 
   getApiKey: (service: string) => {
