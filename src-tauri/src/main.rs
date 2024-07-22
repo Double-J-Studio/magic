@@ -264,6 +264,8 @@ struct RequestBody {
     model: String,
     messages: Vec<MessageBody>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    system: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     max_tokens: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     stream: Option<bool>,
