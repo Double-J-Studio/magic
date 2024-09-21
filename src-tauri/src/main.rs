@@ -3,18 +3,10 @@
 
 use tauri_plugin_sql::{Migration, MigrationKind};
 use reqwest;
-use base64::{Engine as _, engine::{general_purpose}};
-use std::process::{Command};
+use base64::{Engine as _, engine::general_purpose};
+use std::process::Command;
 use std::str;
-use warp::{reply::with_header, Filter,sse::Event};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use reqwest::Client;
-use warp::hyper::HeaderMap;
-use std::convert::Infallible;
-use futures_util::{StreamExt};
-use warp::http::header::{HeaderValue,ACCESS_CONTROL_ALLOW_ORIGIN,ACCESS_CONTROL_ALLOW_METHODS,ACCESS_CONTROL_ALLOW_HEADERS};
-use async_stream::stream;
+use serde::Serialize;
 
 
 #[tauri::command]
@@ -213,141 +205,6 @@ fn main() {
         .invoke_handler(tauri::generate_handler![write_image,toggle_window,get_ollama_version,get_ollama_models])
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_sql::Builder::default().add_migrations("sqlite:magic.db", migrations).build())
-        .setup(|app| {
-            tauri::async_runtime::spawn(async move {
-                let options_route = warp::options()
-                    .map(|| {
-                        warp::reply::with_status(
-                    warp::reply::with_header(
-                        warp::reply::with_header(
-                            warp::reply::with_header(
-                                "OK",
-                                ACCESS_CONTROL_ALLOW_ORIGIN,
-                                HeaderValue::from_static("*")
-                                ),
-                        ACCESS_CONTROL_ALLOW_METHODS,
-                        HeaderValue::from_static("GET, POST, PUT, PATCH, DELETE, OPTIONS")
-                                ),
-                        ACCESS_CONTROL_ALLOW_HEADERS,
-                        HeaderValue::from_static("*")
-                            ),
-                    warp::http::StatusCode::OK
-                        )
-                    }
-                );
-                    
-                let proxy_post = warp::post()
-                    .and(warp::query::<Url>())
-                    .and(warp::body::json())
-                    .and(warp::header::headers_cloned())
-                    .and_then(stream_proxy_handler);
-
-                let routes = options_route.or(proxy_post);
-                
-                warp::serve(routes).run(([127, 0, 0, 1], 17771)).await;
-            });
-
-            Ok(())
-        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-#[derive(Deserialize, Serialize)]
-struct MessageBody {
-    role: String,
-    content: String,
-}
-
-#[derive(Deserialize, Serialize)]
-struct RequestBody {
-    model: String,
-    messages: Vec<MessageBody>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    system: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    max_tokens: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    stream: Option<bool>,
-}
-
-#[derive(Deserialize)]
-struct Url {
-    url: String,
-}
-
-async fn stream_proxy_handler(
-    url: Url,
-    body: Option<Value>,
-    headers: HeaderMap,
-) -> Result<impl warp::Reply, Infallible> {
-    let client = Client::new();
-
-    let mut request_builder = client.post(url.url).json(&body.unwrap_or_default());
-    let reqwest_headers = convert_to_reqwest_headers(headers)?;
-for (key, value) in reqwest_headers.iter() {
-    if key == "content-length" || key == "host" || key == "accept-language" || key == "accept-encoding" {
-        continue
-    }
-
-    request_builder = request_builder.header(key, value.clone());
-}
-    let response = request_builder.send().await.unwrap();
-    let event_stream = stream! {
-        let mut stream = response.bytes_stream();
-
-        while let Some(chunk) = stream.next().await {
-            match chunk {
-                Ok(bytes) => {
-                    let data = String::from_utf8_lossy(&bytes);
-                    let data_str = data.to_string();
-                    for line in data_str.lines() {
-                        if line.starts_with("data") {
-                            let d = line.replace("data:", "");
-
-                            yield Ok::<_, Infallible>(Event::default().data(d));
-                            
-                        } else if line.starts_with("event") {
-                            let e = line.replace("event:", "");
-                            yield Ok::<_, Infallible>(Event::default().event(e));
-                            
-                        } else {
-                            if line.trim() == "" {
-                                continue
-                            }
-
-                            yield Ok::<_, Infallible>(Event::default().data(format!(" {}", line)));
-                        }
-                    }
-                }
-                Err(e) => {
-                    eprintln!("Error while reading response chunk: {}", e);
-                    break;
-                }
-            }
-        }
-    };
-
-    let reply = warp::sse::reply(warp::sse::keep_alive().stream(event_stream));
-    let response = with_header(reply, ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-
-    Ok(response)
-}
-
-fn convert_to_reqwest_headers(
-    hyper_headers: HeaderMap,
-) -> Result<reqwest::header::HeaderMap, Infallible> {
-    let mut reqwest_headers = reqwest::header::HeaderMap::new();;
-
-    for (key, value) in hyper_headers.iter() {
-        let reqwest_key = reqwest::header::HeaderName::from_bytes(key.as_str().as_bytes())
-            .unwrap();
-
-        let reqwest_value = reqwest::header::HeaderValue::from_bytes(value.as_bytes())
-            .unwrap();
-
-        reqwest_headers.insert(reqwest_key, reqwest_value);
-    }
-
-    Ok(reqwest_headers)
 }
